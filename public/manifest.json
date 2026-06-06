@@ -1,0 +1,20 @@
+{
+  "name": "DeckMint",
+  "short_name": "DeckMint",
+  "description": "Structured prompt CMS for high-quality AI image prompts. Build, refine, and export production-ready carousels and graphics — works great as a desktop app in any modern browser.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#111113",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "design", "graphics"],
+  "lang": "en",
+  "dir": "ltr"
+}

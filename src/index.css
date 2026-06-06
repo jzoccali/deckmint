@@ -1,0 +1,588 @@
+@import "tailwindcss";
+
+:root {
+  /* Mac desktop aesthetic - light (primary) */
+  --bg: #f8f8f9;
+  --bg-elevated: #ffffff;
+  --sidebar: #f1f1f3;
+  --panel: #fafafb;
+
+  --text: #2c2c2e;
+  --text-secondary: #6b6b70;
+  --text-muted: #8e8e93;
+
+  --border: #e5e5e7;
+  --border-strong: #d1d1d6;
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: #dbeafe;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+
+  /* System fonts for true Mac feel */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark {
+  --bg: #1c1c1e;
+  --bg-elevated: #2c2c2e;
+  --sidebar: #252528;
+  --panel: #1f1f21;
+
+  --text: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-muted: #6c6c72;
+
+  --border: #3a3a3c;
+  --border-strong: #48484a;
+
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-light: #1e3a8a;
+}
+
+/* Base resets for desktop app feel */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden; /* We control layout fully */
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Desktop app window feel */
+.app-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg);
+}
+
+/* Top bar / custom titlebar area */
+.top-bar {
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 12px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+/* On macOS with decorations we can give extra left padding when we detect it */
+.top-bar.mac {
+  padding-left: 78px; /* space for traffic lights when using native decorations + overlay feel */
+}
+
+.top-bar .title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  color: var(--text);
+}
+
+.top-bar .mode-tabs {
+  margin-left: 24px;
+  display: flex;
+  gap: 2px;
+  background: var(--sidebar);
+  padding: 2px;
+  border-radius: 6px;
+}
+
+.mode-tab {
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  font-weight: 500;
+}
+
+.mode-tab.active {
+  background: var(--bg-elevated);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.mode-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  min-width: 220px;
+  max-width: 320px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 12px 14px 8px;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+  color: var(--text);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.filter-section {
+  padding: 8px 14px;
+}
+
+.filter-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.category-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.category-chip.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.ratio-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Library grid */
+.library {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--bg);
+}
+
+.library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.library-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 12px;
+}
+
+.prompt-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s;
+  display: flex;
+  flex-direction: column;
+}
+
+.prompt-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  border-color: var(--border-strong);
+}
+
+.prompt-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.thumbnail-container {
+  position: relative;
+  background: #f3f4f6;
+  aspect-ratio: 4 / 5; /* default, overridden per card via style or data */
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.thumbnail-container[data-ratio="1:1"] { aspect-ratio: 1 / 1; }
+.thumbnail-container[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
+.thumbnail-container[data-ratio="3:4"] { aspect-ratio: 3 / 4; }
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  font-size: 7px;
+  line-height: 1.1;
+}
+
+.prompt-card .meta {
+  padding: 8px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.prompt-card .name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.prompt-card .category {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.prompt-card .badges {
+  margin-top: auto;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--sidebar);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+/* Inspector / Detail panel */
+.inspector {
+  width: 380px;
+  min-width: 340px;
+  max-width: 440px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.inspector-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.inspector-header .name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.inspector-header .summary {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.inspector-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.inspector-tab {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.inspector-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.inspector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.variable-row {
+  margin-bottom: 10px;
+}
+
+.variable-row label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+}
+
+.variable-row input,
+.variable-row textarea {
+  width: 100%;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.variable-row textarea {
+  min-height: 52px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.prompt-output {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  white-space: pre-wrap;
+  color: var(--text);
+  min-height: 140px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.copy-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: white;
+  font-weight: 500;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.copy-btn:hover {
+  background: var(--accent-hover);
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.action-btn:hover {
+  background: var(--sidebar);
+}
+
+.action-btn.primary {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Structured editor fields */
+.structured-field {
+  margin-bottom: 12px;
+}
+
+.structured-field label {
+  font-size: 11px;
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+}
+
+.structured-field textarea {
+  width: 100%;
+  min-height: 46px;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-elevated);
+  font-family: var(--font-mono);
+  resize: vertical;
+}
+
+/* Series builder (placeholder styles for now) */
+.series-strip {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  background: var(--sidebar);
+  border-bottom: 1px solid var(--border);
+}
+
+.series-item {
+  flex-shrink: 0;
+  width: 92px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.series-item .mini-thumb {
+  height: 72px;
+  background: #e5e7eb;
+}
+
+/* Empty / helper states */
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Scrollbars - subtle Mac style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Toast container from sonner will be styled globally via its own system */
+
+/* Command palette — tight, desktop, matches the rest of the app */
+[cmdk-root] {
+  font-family: var(--font-sans);
+}
+[cmdk-input] {
+  font-size: 13px;
+}
+.cmdk-item {
+  transition: background-color 60ms ease, color 60ms ease;
+}
+.cmdk-item[data-selected="true"] {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.cmdk-item[data-selected="true"] .text-\[var\(--text-muted\)\] {
+  color: color-mix(in srgb, var(--accent) 70%, transparent);
+}

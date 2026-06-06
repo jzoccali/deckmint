@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- DeckMint brand mark: clean stacked cards with fresh mint accent -->
+  <defs>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0ea47a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Back card (slightly offset stack) -->
+  <rect x="14" y="12" width="34" height="42" rx="4" ry="4" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+  
+  <!-- Middle card -->
+  <rect x="11" y="9" width="34" height="42" rx="4" ry="4" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  
+  <!-- Front card (primary) -->
+  <rect x="8" y="6" width="34" height="42" rx="4" ry="4" fill="#ffffff" stroke="#374151" stroke-width="1.5"/>
+  
+  <!-- Mint accent bar on front card (subtle "fresh" detail) -->
+  <rect x="8" y="6" width="34" height="7" rx="4" ry="4" fill="url(#mint)" opacity="0.95"/>
+  
+  <!-- Tiny deck detail lines (representing structured cards/prompts) -->
+  <line x1="14" y1="20" x2="36" y2="20" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="14" y1="26" x2="36" y2="26" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="14" y1="32" x2="30" y2="32" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round"/>
+  
+  <!-- Small mint leaf accent (brand "mint") -->
+  <g transform="translate(36 38)">
+    <path d="M0 0 Q6 -4 8 2 Q5 5 0 3" fill="#14b8a6"/>
+    <circle cx="7" cy="1" r="1.2" fill="#0ea47a"/>
+  </g>
+</svg>
