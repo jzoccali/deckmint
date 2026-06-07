@@ -33,29 +33,117 @@ export const PromptThumbnail: React.FC<Props> = ({ template, size = 'md', classN
   const renderMock = () => {
     // === Knowledge / Explainer family ===
     if (visual_type === 'knowledge-card' || visual_type === 'step-card') {
+      // Much more premium treatment than the old flat 1997-style cards.
+      // Still respects the classic 3-point explainer but looks like a modern high-signal social graphic.
       return (
-        <div className="flex flex-col h-full w-full p-1.5" style={{ background: bg, color: textColor }}>
-          <div className="h-2.5 w-3/4 rounded mb-1" style={{ background: accent, opacity: 0.95 }} />
-          <div className="flex-1 grid grid-rows-3 gap-1">
+        <div className="flex flex-col h-full w-full p-1.5 relative" style={{ background: bg, color: textColor }}>
+          {/* Strong title bar with better presence */}
+          <div className="h-3 w-4/5 rounded mb-1.5" style={{ background: accent }} />
+          {/* Three richer cards with depth and better visual weight */}
+          <div className="flex-1 flex flex-col gap-1">
             {[0,1,2].map(i => (
-              <div key={i} className="rounded border flex items-center px-1" style={{ borderColor: accent + '55', background: 'rgba(255,255,255,0.6)' }}>
-                <div className="w-2 h-2 rounded-full mr-1" style={{ background: accent }} />
-                <div className="flex-1 h-1 bg-black/10 rounded" />
+              <div
+                key={i}
+                className="rounded-md border flex items-center px-1.5 py-0.5"
+                style={{
+                  borderColor: accent + '44',
+                  background: 'rgba(255,255,255,0.92)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+                }}
+              >
+                <div className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0" style={{ background: accent }} />
+                <div className="flex-1">
+                  <div className="h-1 bg-black/15 rounded w-11/12" />
+                  <div className="h-0.5 bg-black/10 rounded w-3/4 mt-0.5" />
+                </div>
               </div>
             ))}
           </div>
+          {/* Subtle source/footer hint at bottom for realism */}
+          <div className="h-1 w-1/2 mx-auto mt-1 rounded" style={{ background: accent, opacity: 0.2 }} />
         </div>
       );
     }
 
     if (visual_type === 'cheatsheet') {
+      // Premium modern dark neon "5 Steps. Max Impact." style cheat sheet / lead magnet.
+      // Directly inspired by high-end 2025-2026 creator/SaaS graphics (glowing numbered vertical steps,
+      // vibrant gradient card borders, cosmic dark bg, strong hierarchy, icons).
+      const steps = [
+        { num: '1', label: 'Claim & Verify', icon: '🎯', color: '#a78bfa' },
+        { num: '2', label: 'Optimize Profile', icon: '🏗️', color: '#60a5fa' },
+        { num: '3', label: 'Content That Converts', icon: '📸', color: '#34d399' },
+        { num: '4', label: 'Reviews & Proof', icon: '💬', color: '#f472b6' },
+        { num: '5', label: 'Insights & Scale', icon: '📈', color: '#f59e0b' },
+      ];
       return (
-        <div className="h-full w-full p-1 grid grid-cols-2 grid-rows-5 gap-0.5" style={{ background: '#0a0a0a', color: '#eee' }}>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="text-[5px] flex items-center px-0.5 border" style={{ borderColor: '#14b8a6' }}>
-              <div className="w-2 h-1 bg-[#14b8a6]/70 mr-0.5" /> <div className="flex-1 h-0.5 bg-white/30" />
+        <div
+          className="h-full w-full p-1.5 flex flex-col relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, #0b0c12 0%, #0a0b10 100%)',
+            color: '#f1f5f9',
+          }}
+        >
+          {/* Subtle cosmic grid / premium background texture */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 5px)',
+              opacity: 0.6,
+            }}
+          />
+
+          {/* Glowing title bar */}
+          <div className="relative z-10 mb-1 flex items-center gap-1">
+            <div className="text-[7px] font-black tracking-[-0.5px] leading-none" style={{ color: '#c026ff' }}>
+              GBP
             </div>
-          ))}
+            <div className="text-[5.5px] font-semibold tracking-[0.5px] text-white/90">BUILD CHEAT SHEET</div>
+          </div>
+
+          <div className="text-[5px] font-bold text-white/70 -mt-0.5 mb-1 tracking-[0.3px]">5 Steps. Max Impact.</div>
+
+          {/* The 5 glowing vertical steps */}
+          <div className="relative z-10 flex-1 flex flex-col gap-0.5">
+            {steps.map((s, idx) => (
+              <div
+                key={idx}
+                className="flex items-start gap-1 rounded-sm px-0.5 py-0.5"
+                style={{
+                  background: 'rgba(255,255,255,0.035)',
+                  border: `1px solid ${s.color}55`,
+                  boxShadow: `0 0 0 1px ${s.color}22, 0 0 6px ${s.color}33 inset`,
+                }}
+              >
+                <div
+                  className="w-3 h-3 rounded flex-shrink-0 flex items-center justify-center text-[6px] font-black"
+                  style={{
+                    background: s.color,
+                    color: '#0b0c12',
+                    boxShadow: `0 0 4px ${s.color}, 0 0 8px ${s.color}88`,
+                  }}
+                >
+                  {s.num}
+                </div>
+                <div className="flex-1 min-w-0 pt-px">
+                  <div className="flex items-center gap-0.5">
+                    <span className="text-[6px] leading-none opacity-80">{s.icon}</span>
+                    <span className="text-[5px] font-semibold tracking-[-0.1px] leading-none text-white">{s.label}</span>
+                  </div>
+                  {/* tiny supporting line to feel dense and real */}
+                  <div className="h-px w-3/4 mt-0.5 bg-white/20" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Strong bottom tagline like the reference */}
+          <div className="relative z-10 mt-0.5 text-center">
+            <div className="text-[4.5px] font-bold tracking-[0.8px]" style={{ color: '#c026ff' }}>
+              CONSISTENCY TODAY. DOMINANCE TOMORROW.
+            </div>
+          </div>
         </div>
       );
     }

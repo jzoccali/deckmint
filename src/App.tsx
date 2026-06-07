@@ -637,6 +637,21 @@ export default function DeckMintApp() {
       };
     }
 
+    if (t.visual_type === 'cheatsheet' || /cheat|five-minute/i.test(t.name || '')) {
+      // Rich 5-step modern marketing cheat sheet example data.
+      // This powers both the library card (via LiveStructuredPreview) and the Structured live editor.
+      // Matches the high-end "GBP BUILD CHEAT SHEET" quality bar the user expects.
+      return {
+        subject: t.name || '5 Steps. Max Impact.',
+        useCase: t.use_case || 'High-conversion lead magnet / cheat sheet',
+        layout: 'Vertical 5-step glowing numbered cards on dark cosmic background. Each step has a large vibrant neon number, icon, bold action line, subtle supporting detail. Strong colored outlines with glow. Premium 2025-2026 SaaS / creator marketing aesthetic.',
+        color: 'Deep dark background (#0b0c12), vibrant neon accents cycling purple/blue/green/pink/amber, high-contrast white text, glowing effects.',
+        typography: 'Bold black weight for titles and numbers, clean tight sans for steps. Strong hierarchy.',
+        style: 'Cinematic dark mode lead magnet, neon cyber accents, soft glows and depth, subtle grid texture, high production value for Instagram/LinkedIn.',
+        onImageText: 'Claim & verify your spot\nOptimize profile so you are impossible to ignore\nPost high-signal content consistently\nTurn customers into social proof\nMeasure what works and double down',
+      };
+    }
+
     if (isCarousel) {
       return {
         subject: t.name,
@@ -1110,7 +1125,9 @@ export default function DeckMintApp() {
                   t.category.includes('Infographic') ||
                   t.visual_type.includes('carousel') ||
                   t.visual_type === 'blog-hero' ||
-                  t.visual_type === 'infographic';
+                  t.visual_type === 'infographic' ||
+                  t.visual_type === 'cheatsheet' ||
+                  t.visual_type === 'knowledge-card';
 
                 return (
                   <div

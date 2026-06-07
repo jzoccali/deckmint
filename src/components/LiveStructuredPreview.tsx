@@ -133,19 +133,76 @@ export const LiveStructuredPreview: React.FC<Props> = ({ template, structured, s
       );
     }
 
-    if (isTimeline || visual_type.includes('step')) {
+    if (isTimeline || visual_type.includes('step') || visual_type === 'cheatsheet') {
+      // High-fidelity modern premium cheat sheet / step guide preview.
+      // Dark cosmic background + vibrant glowing numbered cards with colored borders and depth.
+      // This is what makes the Structured tab feel like you can actually produce 2025-2026 quality lead magnets.
+      const stepCount = 5;
+      const stepColors = ['#a78bfa', '#60a5fa', '#34d399', '#f472b6', '#f59e0b'];
+      const stepIcons = ['🎯', '🏗️', '📸', '💬', '📈'];
+
+      // Try to parse real step text from onImageText if the user has typed good lines.
+      const parsedSteps = textLines.length >= 3 ? textLines.slice(0, stepCount) : null;
+
       return (
-        <div className="h-full w-full p-2 flex flex-col" style={{ background: bg, color: textColor }}>
-          <div className={`text-[12px] mb-2 ${titleFont} ${titleWeight}`} style={{ color: accent }}>{headline}</div>
-          <div className="flex-1 space-y-1">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex gap-1.5 items-start">
-                <div className="w-3 h-3 rounded-full mt-0.5 flex-shrink-0" style={{ background: accent, opacity: 0.85 }} />
-                <div className="text-[8px] leading-tight flex-1">
-                  {textLines[i] || (i === 0 ? 'Step one' : 'Next step')}
+        <div
+          className="h-full w-full p-2 flex flex-col relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, #0b0c12 0%, #0a0b10 100%)',
+            color: '#f1f5f9',
+          }}
+        >
+          {/* Subtle premium grid texture */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px)',
+            }}
+          />
+
+          <div className={`text-[11px] mb-1.5 font-black tracking-[-0.4px] relative z-10`} style={{ color: '#c026ff' }}>
+            {headline || '5 Steps. Max Impact.'}
+          </div>
+
+          <div className="relative z-10 flex-1 flex flex-col gap-1">
+            {Array.from({ length: stepCount }).map((_, i) => {
+              const col = stepColors[i % stepColors.length];
+              const icon = stepIcons[i % stepIcons.length];
+              const line = parsedSteps && parsedSteps[i] ? parsedSteps[i] : (i === 0 ? 'Claim & verify your spot' : i === 1 ? 'Optimize so you are impossible to ignore' : i === 2 ? 'Post high-signal content consistently' : i === 3 ? 'Turn happy customers into proof' : 'Measure, double down, dominate');
+              return (
+                <div
+                  key={i}
+                  className="flex items-start gap-1.5 rounded px-1 py-0.5"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${col}55`,
+                    boxShadow: `0 0 0 1px ${col}22, 0 0 7px ${col}22 inset`,
+                  }}
+                >
+                  <div
+                    className="w-3.5 h-3.5 rounded flex-shrink-0 flex items-center justify-center text-[7px] font-black mt-px"
+                    style={{
+                      background: col,
+                      color: '#0b0c12',
+                      boxShadow: `0 0 5px ${col}, 0 0 10px ${col}99`,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[7px] opacity-80">{icon}</span>
+                      <span className="text-[7.5px] font-semibold tracking-[-0.1px] leading-tight text-white/95">{line}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+
+          <div className="relative z-10 mt-1 text-center text-[5.5px] font-bold tracking-[0.6px]" style={{ color: '#c026ff' }}>
+            CONSISTENCY TODAY • DOMINANCE TOMORROW
           </div>
         </div>
       );
