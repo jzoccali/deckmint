@@ -471,21 +471,20 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       return { templateExampleOverrides: next };
     }),
 
-  // The money action: if the user has configured an OpenAI key, call the real image model with the exact prompt
-  // we would have given them to copy-paste. Result (as data URL) is recorded into the same history as local PNGs.
+  // The money action for real AI image generation.
+  //
+  // Two paths (this is the key UX decision for "internal/shared AI vs user key"):
+  // - If the user has pasted their own OpenAI key → we call OpenAI directly from the browser (private, uses *their* quota/billing, no limits from us).
+  // - If no personal key → we call our serverless proxy /api/generate-image (uses a key we control on Vercel).
+  //   This is what lets casual users experience "it just works" without pasting anything.
+  //
+  // Future iterations will need proper quotas, auth, and cost controls on the hosted path.
+  // For now this gives us the "what would a normal person experience?" demo the user asked for.
   generateRealImage: async (prompt, templateId, source) => {
     const state = usePromptStore.getState();
     const key = state.ai.openaiApiKey;
-    if (!key) {
-      // Graceful: just record the prompt (user can still use the local visual path)
-      state.recordGeneration(prompt, templateId, source);
-      return;
-    }
 
-    const model = state.ai.model || 'gpt-image-1';
-
-    // Pick a reasonable OpenAI image size based on the template's aspect ratio when possible.
-    // This makes the "real" generation path much more useful for carousels and data graphics.
+    // Pick a reasonable size based on the template (helps carousels and tall graphics look better).
     let size: '1024x1024' | '1792x1024' | '1024x1792' = '1024x1024';
     if (templateId != null) {
       const tmpl = state.templates.find((t) => t.id === templateId);
@@ -495,43 +494,70 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       }
     }
 
-    // Call OpenAI (client-side, with the user's own key)
-    const res = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${key}`,
-      },
-      body: JSON.stringify({
-        model,
-        prompt,
-        n: 1,
-        size,
-        response_format: 'url',
-      }),
-    });
+    const model = state.ai.model || 'gpt-image-1';
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({} as any));
-      const message = err?.error?.message || `OpenAI error ${res.status}`;
-      throw new Error(message);
+    if (key) {
+      // === Path A: User's own key (private, unlimited from our perspective) ===
+      const res = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${key}`,
+        },
+        body: JSON.stringify({
+          model,
+          prompt,
+          n: 1,
+          size,
+          response_format: 'url',
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({} as any));
+        const message = err?.error?.message || `OpenAI error ${res.status}`;
+        throw new Error(message);
+      }
+
+      const data = await res.json();
+      const url: string | undefined = data?.data?.[0]?.url;
+      if (!url) throw new Error('No image returned from the model');
+
+      const imgRes = await fetch(url);
+      const blob = await imgRes.blob();
+      const imageDataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      state.recordGeneration(prompt, templateId, source, imageDataUrl);
+      return;
     }
 
-    const data = await res.json();
-    const url: string | undefined = data?.data?.[0]?.url;
-    if (!url) throw new Error('No image returned from the model');
-
-    // Fetch the generated image and convert to data URL so it persists locally exactly like our canvas exports
-    const imgRes = await fetch(url);
-    const blob = await imgRes.blob();
-    const imageDataUrl: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+    // === Path B: No personal key → use our hosted / internal AI (the "what a normal user would experience") ===
+    // This calls the Vercel serverless function which holds OPENAI_API_KEY in the environment.
+    // The key never leaves the server. The user gets a real generated image with zero setup.
+    const hostedRes = await fetch('/api/generate-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, size, model }),
     });
 
-    // Record it the same way local visuals are recorded — full continuity in history + UI
+    if (!hostedRes.ok) {
+      const err = await hostedRes.json().catch(() => ({} as any));
+      throw new Error(err?.error || `Hosted AI error ${hostedRes.status}`);
+    }
+
+    const hostedData = await hostedRes.json();
+    const imageDataUrl: string | undefined = hostedData?.imageDataUrl;
+
+    if (!imageDataUrl) {
+      throw new Error('Hosted AI did not return an image');
+    }
+
+    // Record exactly like a personal-key or local generation so the rest of the app (Latest, history, promote-to-library, etc.) works unchanged.
     state.recordGeneration(prompt, templateId, source, imageDataUrl);
   },
 

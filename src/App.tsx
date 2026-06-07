@@ -1019,28 +1019,38 @@ export default function DeckMintApp() {
             )}
           </div>
 
-          {/* Optional real AI image generation — bring your own key.
-              This is the "does an AI live in the app?" question answered cleanly:
-              It can, if *you* want it to. Your key never leaves the browser. Results flow into the exact same
-              history, latest-generation card, and asset actions as the pure local PNG workflow. */}
+          {/* AI / Image Generation — redesigned for the "what a normal person experiences" demo.
+              Default path: DeckMint provides the AI (via a serverless proxy on this Vercel deployment that holds a key).
+              This is what lets the library seed with beautiful real images with one click and no user key pasting.
+
+              Power user path: paste your own OpenAI key for unlimited volume + fully private/direct calls (your quota, your billing).
+              We keep both paths because the hosted/shared key has real upsides (frictionless first use) and downsides (cost control, abuse, limits). */}
           <div className="filter-section border border-[var(--border)] rounded p-2 bg-[var(--bg-elevated)]">
             <div className="filter-label flex items-center justify-between">
-              <span>AI Image Generation (optional)</span>
+              <span>Image Generation</span>
               {ai.openaiApiKey ? (
-                <span className="text-[9px] px-1.5 py-px rounded bg-emerald-600 text-white">OpenAI ready</span>
+                <span className="text-[9px] px-1.5 py-px rounded bg-emerald-600 text-white">Your key (unlimited)</span>
               ) : (
-                <span className="text-[9px] text-[var(--text-muted)]">local only</span>
+                <span className="text-[9px] px-1.5 py-px rounded bg-sky-600 text-white">DeckMint AI (shared)</span>
               )}
             </div>
 
-            <div className="text-[10px] text-[var(--text-muted)] mb-1.5">
-              Paste an OpenAI API key to turn the "Generate" buttons into real model calls. Key stays in your browser only.
-            </div>
+            {!ai.openaiApiKey && (
+              <div className="text-[10px] text-[var(--text-secondary)] mb-1.5 leading-snug">
+                Generations use DeckMint’s shared AI (demo tier). Great for trying the app and seeding the library with real high-quality images. Limited &amp; shared — for serious volume use your own key below.
+              </div>
+            )}
+
+            {ai.openaiApiKey && (
+              <div className="text-[10px] text-[var(--text-muted)] mb-1.5">
+                Using your own OpenAI key. Calls go directly from your browser. Private + your quota.
+              </div>
+            )}
 
             <input
               type="password"
               className="search-input text-xs"
-              placeholder="sk-..."
+              placeholder="Paste your own OpenAI key for unlimited (optional)"
               value={ai.openaiApiKey || ''}
               onChange={(e) => setAiConfig({ provider: e.target.value ? 'openai' : 'none', openaiApiKey: e.target.value || undefined })}
             />
@@ -1060,16 +1070,16 @@ export default function DeckMintApp() {
                   className="text-[10px] px-2 py-0.5 rounded border text-red-600 hover:bg-red-50"
                   onClick={() => {
                     clearAiKey();
-                    toast('AI key cleared');
+                    toast('Switched back to DeckMint shared AI');
                   }}
                 >
-                  Clear key
+                  Use shared AI instead
                 </button>
               )}
             </div>
 
             <div className="text-[9px] text-[var(--text-muted)] mt-1 leading-snug">
-              When a key is present, the emerald generate buttons will call the model and drop the real image into your local history (same place as the PNG exports).
+              The big emerald “Seed high-quality real examples” button and the per-card generate buttons will produce actual model images. With no key pasted they use the shared hosted path. Paste a key when you want private/unlimited results.
             </div>
           </div>
 
@@ -1245,17 +1255,13 @@ export default function DeckMintApp() {
                   const example = getExampleStructuredForTemplate(t);
                   const prompt = buildStructuredPrompt(t, example as any);
                   try {
-                    if (ai.openaiApiKey) {
-                      await generateRealImage(prompt, t.id, 'structured');
-                      const latest = (usePromptStore.getState() as any).lastGenerated;
-                      if (latest?.imageDataUrl) {
-                        setTemplateExampleOverride(String(t.id), latest.imageDataUrl);
-                        count++;
-                      }
-                    } else {
-                      const { imageDataUrl } = await renderStructuredPreviewToDataUrl(example as any, t, 1024);
-                      setTemplateExampleOverride(String(t.id), imageDataUrl);
-                      (usePromptStore.getState() as any).recordGeneration?.(prompt, t.id, 'structured', imageDataUrl);
+                    // generateRealImage now handles both:
+                    // - Personal key (direct, private)
+                    // - No key → hosted DeckMint AI via /api/generate-image (the "internal/shared" experience)
+                    await generateRealImage(prompt, t.id, 'structured');
+                    const latest = (usePromptStore.getState() as any).lastGenerated;
+                    if (latest?.imageDataUrl) {
+                      setTemplateExampleOverride(String(t.id), latest.imageDataUrl);
                       count++;
                     }
                     await new Promise(r => setTimeout(r, 100));
@@ -1455,20 +1461,13 @@ export default function DeckMintApp() {
                             const prompt = buildStructuredPrompt(t, example as any);
 
                             try {
-                              if (ai.openaiApiKey) {
-                                await generateRealImage(prompt, t.id, 'structured');
-                                const latest = (usePromptStore.getState() as any).lastGenerated;
-                                if (latest?.imageDataUrl) {
-                                  setTemplateExampleOverride(String(t.id), latest.imageDataUrl);
-                                  toast.success('High-quality AI example set', { description: `Library card for "${t.name}" now shows a real generation.` });
-                                }
-                              } else {
-                                // Local high-res canvas render using the exact same structured example data
-                                const { imageDataUrl } = await renderStructuredPreviewToDataUrl(example as any, t, 1024);
-                                setTemplateExampleOverride(String(t.id), imageDataUrl);
-                                // Record so it also appears in Latest / history
-                                (usePromptStore.getState() as any).recordGeneration?.(prompt, t.id, 'structured', imageDataUrl);
-                                toast.success('Local example promoted', { description: 'Good canvas render set as the library thumbnail. Add an OpenAI key for photoreal / complex ones.' });
+                              // Always attempt a real generation.
+                              // The store will use your personal key if present, otherwise the hosted DeckMint AI (shared key on this Vercel deployment).
+                              await generateRealImage(prompt, t.id, 'structured');
+                              const latest = (usePromptStore.getState() as any).lastGenerated;
+                              if (latest?.imageDataUrl) {
+                                setTemplateExampleOverride(String(t.id), latest.imageDataUrl);
+                                toast.success('High-quality example set as library thumbnail', { description: `Card for "${t.name}" now shows a real generated image.` });
                               }
                             } catch (err: any) {
                               toast.error('Failed to generate example', { description: String(err?.message || err) });
@@ -2125,8 +2124,9 @@ export default function DeckMintApp() {
                         Use as reference for Edit Existing
                       </button>
 
-                      {/* When AI is configured, give a one-click way to produce a *real* model image for the exact same prompt that is shown in Latest */}
-                      {ai.openaiApiKey && lastGenerated && (
+                      {/* "Real AI" button in Latest — now works for both personal key and the hosted DeckMint shared AI.
+                          This is a big part of the "it just works for normal users" experience. */}
+                      {lastGenerated && (
                         <button
                           className="action-btn flex-1 bg-sky-600 hover:bg-sky-700 text-white"
                           onClick={async () => {
@@ -2138,7 +2138,7 @@ export default function DeckMintApp() {
                             }
                           }}
                         >
-                          Regenerate this with real AI
+                          {ai.openaiApiKey ? 'Regenerate this with real AI' : 'Regenerate with DeckMint AI'}
                         </button>
                       )}
 
