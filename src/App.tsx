@@ -1233,6 +1233,15 @@ export default function DeckMintApp() {
                         </div>
                         <div className="summary">Saved custom template — edits in the Structured tab are live. Rename above, duplicate, or propagate to your series.</div>
 
+                        {templateExampleOverrides[activeId] && (
+                          <div className="mt-1 text-[9px] flex items-center gap-2">
+                            <span className="px-1.5 py-px rounded bg-emerald-100 text-emerald-700">Using your promoted example image in the library</span>
+                            <button className="text-red-600 hover:underline" onClick={() => { clearTemplateExampleOverride(activeId); toast('Reverted custom library card to live preview'); }}>
+                              Reset to live preview
+                            </button>
+                          </div>
+                        )}
+
                         <div className="mt-2 flex flex-wrap gap-2">
                           <button 
                             className="action-btn text-xs"
