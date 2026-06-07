@@ -595,30 +595,39 @@ export default function DeckMintApp() {
   }
 
   // Helper: produce a rich, realistic preview structured object for a template.
-  // This powers the "show me examples of the output one might expect from this prompt template" experience
-  // in the structured editor live preview when browsing the library or using the recommender.
-  // All examples are clearly fictional/generic — never real-world demographic or census data.
+  // This is how we "use the app to build examples of what each one would look like".
+  // Every entry below is a carefully curated "perfect modern 2026 example" — the exact
+  // on-image text, layout language, color, typography and style a great output from that
+  // prompt should have. These power the LiveStructuredPreview in both the library grid
+  // and the Structured inspector so the app itself demonstrates modern, production-grade
+  // results for every template.
   function getExampleStructuredForTemplate(t: any) {
+    const nameLower = (t.name || '').toLowerCase();
     const isData = /statistical|data fact|infographic/i.test(t.name) || t.visual_type.includes('data') || t.category.includes('Infographic');
     const isKnowledge = t.visual_type === 'knowledge-card' || t.category.includes('Knowledge');
     const isCarousel = t.visual_type && t.visual_type.includes('carousel');
     const isTimeline = /timeline/i.test(t.name);
     const isFlow = /flowchart/i.test(t.name);
     const isMatrix = /matrix|comparison/i.test(t.name);
+    const isCheat = t.visual_type === 'cheatsheet' || /cheat|five-minute/i.test(t.name || '');
+    const isBlogHero = t.visual_type === 'blog-hero' || t.visual_type === 'mockup';
+    const isQuote = t.visual_type === 'quote-card';
+    const isPlanner = t.visual_type === 'planner';
+    const isRecipe = t.visual_type === 'recipe';
+    const isItinerary = t.visual_type === 'itinerary';
+    const isBeforeAfter = t.visual_type === 'before-after';
 
     if (isData) {
-      // Strong, concrete data-viz preview (generic categories + plausible numbers).
-      // Lets the live preview + density map renderer show impressive output immediately.
       const wantsDensity = /density|map|choropleth|geographic|by state|regional/i.test(t.layout || t.name);
       return {
         subject: t.name + ' example',
         useCase: t.use_case || 'Data insight / ranking',
         layout: wantsDensity
-          ? 'Clean 5-tile density map layout. Each tile shows a short region label and large percentage. Tiles shaded by intensity. Title at top, source footer at bottom. High data density, instantly scannable.'
-          : 'Bold title at top. 5 horizontal bars ranked longest to shortest. Exact category name on left of each bar, large bold percentage label on or right next to the bar. Strict visual proportionality. Source footer at bottom.',
-        color: t.color || 'Clean light background, strong accent color for bars or tiles, dark highly legible text.',
-        typography: t.typography || 'Bold sans title and oversized percentages, clear readable category labels.',
-        style: t.style || 'Premium editorial data-viz. Authoritative, precise, minimal decoration.',
+          ? 'Clean 5-tile density map layout. Each tile shows a short region label and large percentage. Tiles shaded by intensity. Title at top, source footer at bottom. High data density, instantly scannable. Premium editorial data-viz with modern depth.'
+          : 'Bold title at top. 5 horizontal bars ranked longest to shortest. Exact category name on left of each bar, large bold percentage label on or right next to the bar. Strict visual proportionality. Source footer at bottom. Clean modern data visualization skin.',
+        color: t.color || 'Clean light background, strong accent color for bars or tiles, dark highly legible text. Subtle soft shadows and depth for 2026 production feel.',
+        typography: t.typography || 'Bold sans title and oversized percentages, clear readable category labels. Excellent hierarchy and tracking.',
+        style: t.style || 'Premium editorial data-viz. Authoritative, precise, minimal decoration, high production value, modern and shareable.',
         onImageText: wantsDensity
           ? 'Metric Share by Region\nRegion A — 52%\nRegion B — 31%\nRegion C — 24%\nRegion D — 17%\nRegion E — 9%\nSource: Internal analytics (example)'
           : 'Top Categories 2026\nAlpha — 47%\nBeta — 29%\nGamma — 14%\nDelta — 7%\nEpsilon — 3%\nSource: 2026 Survey (example)',
@@ -632,35 +641,41 @@ export default function DeckMintApp() {
         layout: t.layout,
         color: t.color,
         typography: t.typography,
-        style: t.style,
+        style: t.style + ' — modern clean educational card with excellent depth and scannability.',
         onImageText: (t.on_image_text_structure || ['Headline', 'Point one', 'Point two', 'Point three', 'Source']).join('\n'),
       };
     }
 
-    if (t.visual_type === 'cheatsheet' || /cheat|five-minute/i.test(t.name || '')) {
-      // Rich 5-step modern marketing cheat sheet example data.
-      // This powers both the library card (via LiveStructuredPreview) and the Structured live editor.
-      // Matches the high-end "GBP BUILD CHEAT SHEET" quality bar the user expects.
+    if (isCheat) {
       return {
         subject: t.name || '5 Steps. Max Impact.',
         useCase: t.use_case || 'High-conversion lead magnet / cheat sheet',
         layout: 'Vertical 5-step glowing numbered cards on dark cosmic background. Each step has a large vibrant neon number, icon, bold action line, subtle supporting detail. Strong colored outlines with glow. Premium 2025-2026 SaaS / creator marketing aesthetic.',
-        color: 'Deep dark background (#0b0c12), vibrant neon accents cycling purple/blue/green/pink/amber, high-contrast white text, glowing effects.',
-        typography: 'Bold black weight for titles and numbers, clean tight sans for steps. Strong hierarchy.',
-        style: 'Cinematic dark mode lead magnet, neon cyber accents, soft glows and depth, subtle grid texture, high production value for Instagram/LinkedIn.',
+        color: 'Deep dark background (#0b0c12), vibrant neon accents cycling purple/blue/green/pink/amber, high-contrast white text, glowing effects. Cinematic depth and subtle grid.',
+        typography: 'Bold black weight for titles and numbers, clean tight sans for steps. Strong hierarchy. Numbers feel luminous.',
+        style: 'Cinematic dark mode lead magnet, neon cyber accents, soft glows and depth, subtle grid texture, high production value for Instagram/LinkedIn. Exactly the quality bar of top founder cheat sheets in 2026.',
         onImageText: 'Claim & verify your spot\nOptimize profile so you are impossible to ignore\nPost high-signal content consistently\nTurn customers into social proof\nMeasure what works and double down',
       };
     }
 
     if (isCarousel) {
+      // Give each role very specific, modern, production-ready text so the preview looks like a real deliverable.
+      let onImageText = (t.on_image_text_structure || ['Big question or tagline', 'Supporting detail', 'Swipe hint']).join('\n');
+      if (/cover|hook|question|personal|story/i.test(nameLower)) {
+        onImageText = 'The one mistake that cost me $47k\nA 4-slide story about learning the hard way\nSwipe to see what I would do differently →';
+      } else if (/interior|standard/i.test(nameLower)) {
+        onImageText = 'Mistake #2 — Chasing every shiny object\nI said yes to every opportunity for 18 months.\nHere is the simple filter I use now.\nIt saved my focus and my revenue.';
+      } else if (/closing|cta|final/i.test(nameLower)) {
+        onImageText = 'Which of these 3 mistakes are you making right now?\nComment the number.\nSave this for the next time you feel stuck.\n@yourhandle';
+      }
       return {
         subject: t.name,
         useCase: t.use_case,
-        layout: t.layout,
+        layout: t.layout + ' — modern high-engagement carousel with strong visual rhythm and perfect text hierarchy.',
         color: t.color,
-        typography: t.typography,
-        style: t.style,
-        onImageText: (t.on_image_text_structure || ['Big question or tagline', 'Supporting detail', 'Swipe hint']).join('\n'),
+        typography: t.typography + ' — bold, confident, highly legible at small sizes.',
+        style: t.style + ' — premium 2026 carousel aesthetic, cinematic or clean editorial, excellent contrast.',
+        onImageText,
       };
     }
 
@@ -671,7 +686,7 @@ export default function DeckMintApp() {
         layout: t.layout,
         color: t.color,
         typography: t.typography,
-        style: t.style,
+        style: t.style + ' — clean modern timeline with excellent spacing and premium editorial feel.',
         onImageText: 'Project Timeline\n2024 Q1 — Foundation\n2024 Q3 — Public beta\n2025 Q2 — 10k users\n2025 Q4 — Enterprise\n2026 Q2 — Next platform\nSource: company milestones (example)',
       };
     }
@@ -683,8 +698,8 @@ export default function DeckMintApp() {
         layout: t.layout,
         color: t.color,
         typography: t.typography,
-        style: t.style,
-        onImageText: (t.on_image_text_structure || ['Title', 'Step 1', 'Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 6']).join('\n'),
+        style: t.style + ' — clear, modern, scannable flow with strong visual hierarchy.',
+        onImageText: 'User Flow — New Account\n1. Landing hero\n2. Email capture\n3. Onboarding quiz\n4. First value moment\n5. Activation\n6. Habit loop',
       };
     }
 
@@ -695,20 +710,183 @@ export default function DeckMintApp() {
         layout: t.layout,
         color: t.color,
         typography: t.typography,
-        style: t.style,
-        onImageText: (t.on_image_text_structure || ['Title', 'Feature row 1', 'Feature row 2', 'Feature row 3', 'Feature row 4', 'Feature row 5', 'Feature row 6']).join('\n'),
+        style: t.style + ' — clean comparison matrix, modern product marketing quality.',
+        onImageText: 'Feature Comparison 2026\nPerformance — Excellent / Good\nDX — Best in class / Improving\nEcosystem — Mature / Growing\nPricing — Transparent / Opaque\nSupport — 24/7 / Business hours',
       };
     }
 
-    // Fallback: use the template's own description
+    if (isBlogHero) {
+      if (/engineer|desk|workspace|laptop/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Top-down realistic warm wooden desk, open laptop with visible code + browser, coffee, notebook, small plant, mechanical keyboard, natural window light, soft shadows. Subtle text on screen or sticky note. Photorealistic lifestyle tech photography, calm aspirational 2026 engineer aesthetic.',
+          color: 'Warm wood tones, natural daylight, low saturation, soft realistic shadows, premium lived-in feel.',
+          typography: 'Subtle, elegant — faint text on laptop screen or small handwritten sticky note. High craft, not loud.',
+          style: 'Photorealistic lifestyle tech photography, IG-engineer aesthetic, aspirational but authentic, high production value for blog hero or OG image.',
+          onImageText: 'Side Project\nlaunch v1.0',
+        };
+      }
+      if (/ticket|pickup|metaphor|abstract.*concept|promise/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Centered realistic restaurant pickup ticket with number, resting on softly blurred warm drink-shop counter, beautiful bokeh, shallow depth of field, cinematic narrative lighting.',
+          color: 'Warm orange ambient low-saturation light, creamy highlights, premium photoreal storytelling.',
+          typography: 'Small elegant mono on the ticket itself, one refined supporting line underneath.',
+          style: 'Photorealistic cinematic metaphor, high-end article visual, thoughtful and premium.',
+          onImageText: '#042\nYour number is ready',
+        };
+      }
+      if (/listicle|giant number|big number|10 |count/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Left 42% holds stacked bold headline + subtitle. Right side dominated by a huge layered gradient number that feels like a design hero. Strong modern editorial composition.',
+          color: 'Deep purple gradient background, vibrant neon pink/magenta accent on the giant number and key text.',
+          typography: 'Confident bold sans for headline, the massive number is the primary visual element with depth and glow.',
+          style: 'Bold modern listicle / editorial hero, high visual impact, confident, extremely shareable 2026 style.',
+          onImageText: '10 skills new frontend engineers\nshould learn in 2026\n10',
+        };
+      }
+      if (/magazine|wired|masthead|barcode|serif/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Classic magazine cover: masthead at very top, large centered two-line main headline, issue + date at bottom, clean barcode element bottom-left. Sophisticated print homage with modern refinement.',
+          color: 'Rich black dominant with one strong fluorescent accent (red or electric green) on masthead or a key line.',
+          typography: 'Refined elegant serif for masthead and main headline, excellent editorial spacing and hierarchy. Small clean sans for date/barcode.',
+          style: 'High-end magazine cover homage (Wired / The Atlantic level), print-production quality, timeless yet fresh, authoritative and premium.',
+          onImageText: 'TECH MAG\nThe next decade of AI\nrewriting engineering work\nMay 2026\nDisplay until May 30',
+        };
+      }
+      if (/polaroid|collage|washi|scattered|retro/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Soft warm background with 4–6 slightly rotated modern Polaroid-style photos scattered with intention. Small elegant handwritten-style labels on each photo. Contemporary take on retro collage, premium and personal.',
+          color: 'Warm cream / kraft paper tones with soft shadows and subtle texture. Modern color grading.',
+          typography: 'Small delicate handwritten or clean sans labels on the photos — personal and warm.',
+          style: 'Premium modern personal retrospective collage. Not cheap retro clipart — high craft, thoughtful composition, shareable and emotional.',
+          onImageText: 'Shipped\nQ1 2026\nLearned\nLaunched\nBurned out\nReset',
+        };
+      }
+      if (/app mock|phone|device|interface/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Clean modern smartphone (or laptop) mockup centered on a soft neutral background with beautiful soft shadows and subtle depth. The screen shows a realistic, high-quality app interface with the exact on-image text placed naturally inside the UI.',
+          color: 'Soft neutral background (light warm grey or off-white), device bezel in realistic dark or light, screen content crisp and modern.',
+          typography: 'The UI inside the device uses clean modern app typography. Any overlaid text is elegant and minimal.',
+          style: 'Premium product / app mockup photography style, 2026 high-production feel, perfect for landing pages, case studies, or OG images.',
+          onImageText: 'DeckMint\nStructured prompts\nfor production graphics',
+        };
+      }
+      // Generic strong blog hero
+      return {
+        subject: t.name,
+        useCase: t.use_case,
+        layout: t.layout + ' — premium modern hero composition with excellent light, depth, and typography.',
+        color: t.color,
+        typography: t.typography,
+        style: t.style + ' — high production value, modern creator / editorial aesthetic, 2026 quality.',
+        onImageText: (t.on_image_text_structure || ['Headline', 'Supporting detail']).join('\n'),
+      };
+    }
+
+    if (isQuote) {
+      if (/japanese|minimal|handwritten|slow/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Solid warm cream-yellow background. Short comforting line perfectly centered in soft handwritten / brush style. Tiny delicate attribution + date only in bottom-right corner. Extreme restraint and perfect placement.',
+          color: 'Cream-yellow background, warm dark brown text. Meditative and human.',
+          typography: 'Soft handwritten or brush for the main line. Tiny delicate sans for attribution.',
+          style: 'Japanese minimal, indie zine / lit-zine, meditative, highly bookmarkable. The power is in the negative space and warmth.',
+          onImageText: 'Slow is fast.\n2026.05 / @yourhandle',
+        };
+      }
+      // Default elegant silhouette quote
+      return {
+        subject: t.name,
+        useCase: t.use_case,
+        layout: 'Left third: elegant low-saturation silhouette profile. Right two-thirds: the quote set beautifully in large bold serif. Small clean sans attribution with em-dash at bottom. Excellent breathing room and typography.',
+        color: 'Warm sophisticated grey background, crisp white quote text, monochrome elegant silhouette.',
+        typography: 'Bold beautiful serif for the quote (large but refined). Small clean sans for attribution.',
+        style: 'Editorial quote card, timeless yet modern, sophisticated and contemplative. High craft suitable for high-quality social or slide use.',
+        onImageText: 'Design is not just what it looks like and feels like.\nDesign is how it works.\n— Steve Jobs',
+      };
+    }
+
+    if (isPlanner) {
+      return {
+        subject: t.name,
+        useCase: t.use_case,
+        layout: 'Clean modern weekly or habit tracker grid. Days or habits as elegant rows/columns. Checkboxes or progress dots that feel satisfying. Subtle accent color for the current day or key habit. Premium productivity aesthetic.',
+        color: 'Soft off-white or light warm grey background, calm accent (sage, navy or soft teal), excellent contrast for text and checkboxes.',
+        typography: 'Clean modern sans, very legible at small sizes. Day names and habit labels have nice weight.',
+        style: 'Premium modern planner / Notion-style productivity graphic. Calm, usable, beautiful enough to screenshot and share.',
+        onImageText: 'Week of June 8\nMon • Deep work 3h ✓\nTue • Ship v2\nWed • No meetings\nThu • Review + plan\nFri • Buffer & reset',
+      };
+    }
+
+    if (isRecipe) {
+      return {
+        subject: t.name,
+        useCase: t.use_case,
+        layout: 'Appetizing recipe card. Hero photo suggestion at top or left, ingredients list, numbered steps on the right or below. Clean delicious photography feel with modern typography.',
+        color: 'Warm inviting food photography palette — soft cream, warm wood, fresh green accents, rich but natural.',
+        typography: 'Bold for recipe title, clean readable for ingredients and steps. Numbers feel prominent but elegant.',
+        style: 'High-end modern recipe card / food magazine style. Appetizing, clean, shareable on social or save to Notion.',
+        onImageText: 'One-Pan Miso Butter Pasta\n15 min • Serves 2\n200g pasta\n2 tbsp butter\n1 tbsp miso\nChili flakes + scallion\nBoil pasta. Brown butter.\nWhisk in miso. Toss. Finish with chili.',
+      };
+    }
+
+    if (isItinerary) {
+      return {
+        subject: t.name,
+        useCase: t.use_case,
+        layout: 'Elegant one-day travel itinerary. Time blocks or locations as beautiful cards or a clean vertical flow. Small icons or markers. Feels luxurious and well-paced.',
+        color: 'Calm travel palette — soft sand, deep teal, warm terracotta accents, excellent contrast.',
+        typography: 'Refined sans or light serif for location names. Clear time labels. Generous but tight spacing.',
+        style: 'Premium modern travel / lifestyle editorial. The kind of itinerary graphic a boutique trip planner or creator would post.',
+        onImageText: 'Kyoto • One Perfect Day\n07:30 — Coffee at % Arabica\n08:30 — Fushimi Inari (early)\n11:00 — Arashiyama bamboo\n13:00 — Lunch at Kinsui\n15:30 — Tea ceremony\n18:00 — Gion walk + dinner',
+      };
+    }
+
+    if (isBeforeAfter) {
+      if (/ui|screen|redesign|login/i.test(nameLower)) {
+        return {
+          subject: t.name,
+          useCase: t.use_case,
+          layout: 'Two device screens side by side with a crisp vertical divider. Left labeled "Before" — intentionally ugly 90s-style interface (rainbow, bad fonts, cramped). Right labeled "After" — beautiful modern minimal redesign with excellent hierarchy and spacing. Dramatic, instantly obvious improvement.',
+          color: 'Left: chaotic 90s colors. Right: clean white/light with refined typography and one calm accent.',
+          typography: 'Left: deliberately bad mismatched fonts. Right: beautiful modern hierarchy, generous spacing.',
+          style: 'Strong educational contrast, design tutorial quality, high production value. The "After" must look like something a top designer would ship in 2026.',
+          onImageText: 'Before\nMember Login\n[ugly 90s form]\nAfter\nWelcome back\n[beautiful modern form]',
+        };
+      }
+      // Copywriting before/after
+      return {
+        subject: t.name,
+        useCase: t.use_case,
+        layout: 'Top half "Before" with long-winded corporate paragraph on light grey. Strong clean horizontal divider. Bottom half "After" with a single tight, punchy, memorable line on fresh mint. Dramatic emotional contrast.',
+        color: 'Before zone: light grey. After zone: fresh mint green with high energy.',
+        typography: 'Before: dense readable. After: bold, confident, the line feels like a revelation.',
+        style: 'Copywriting tutorial, immediate "aha" contrast. Premium modern messaging aesthetic.',
+        onImageText: 'Before\nOur solution helps forward-thinking teams leverage synergistic paradigms to drive cross-functional value creation and stakeholder alignment in today\'s rapidly evolving marketplace.\nAfter\nShip faster. Waste less. Sleep better.',
+      };
+    }
+
+    // Strong generic modern fallback for anything else
     return {
       subject: t.name,
       useCase: t.use_case,
-      layout: t.layout,
+      layout: (t.layout || '') + ' — premium modern 2026 composition with excellent hierarchy, breathing room and production value.',
       color: t.color,
       typography: t.typography,
-      style: t.style,
-      onImageText: (t.on_image_text_structure || []).join('\n'),
+      style: (t.style || '') + ' — high production value, modern creator / editorial / product graphic aesthetic, not dated.',
+      onImageText: (t.on_image_text_structure || ['Main message', 'Supporting detail']).join('\n'),
     };
   }
 
@@ -1119,7 +1297,11 @@ export default function DeckMintApp() {
                 // Use the richer live structured preview for anything where we have good example content.
                 // This makes the library actually show what decent output from the prompt is supposed to look like,
                 // instead of collapsing everything to generic minimal CSS cards.
-                const isDataViz =
+                // Use the rich LiveStructuredPreview (with carefully curated "perfect modern example" data)
+                // for almost everything. This makes the entire library grid show high-fidelity, modern,
+                // production-grade representations of exactly what each prompt template is designed to output.
+                // The user can still "promote" a real generated PNG/AI result on top of any card.
+                const usesRichLivePreview =
                   /statistical|data fact|infographic/i.test(t.name) ||
                   t.visual_type.includes('data') ||
                   t.category.includes('Infographic') ||
@@ -1127,7 +1309,16 @@ export default function DeckMintApp() {
                   t.visual_type === 'blog-hero' ||
                   t.visual_type === 'infographic' ||
                   t.visual_type === 'cheatsheet' ||
-                  t.visual_type === 'knowledge-card';
+                  t.visual_type === 'knowledge-card' ||
+                  t.visual_type === 'step-card' ||
+                  t.visual_type === 'comparison-card' ||
+                  t.visual_type === 'contrast-card' ||
+                  t.visual_type === 'mockup' ||
+                  t.visual_type === 'quote-card' ||
+                  t.visual_type === 'planner' ||
+                  t.visual_type === 'recipe' ||
+                  t.visual_type === 'itinerary' ||
+                  t.visual_type === 'before-after';
 
                 return (
                   <div
@@ -1146,7 +1337,7 @@ export default function DeckMintApp() {
                           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                         />
                       </div>
-                    ) : isDataViz ? (
+                    ) : usesRichLivePreview ? (
                       <div style={{ transform: 'scale(0.78)', transformOrigin: 'top left', width: '128%' }}>
                         <LiveStructuredPreview
                           template={t}

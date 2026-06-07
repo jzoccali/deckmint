@@ -267,6 +267,229 @@ export const LiveStructuredPreview: React.FC<Props> = ({ template, structured, s
       );
     }
 
+    // === Premium modern Blog / Article heroes + Mockups (the ones people actually post in 2026) ===
+    if (visual_type === 'blog-hero' || visual_type === 'mockup') {
+      const n = (template.name || '').toLowerCase();
+
+      // Engineer's desk — warm top-down lifestyle with depth
+      if (/engineer|desk|workspace|laptop/i.test(n)) {
+        return (
+          <div className="h-full w-full p-1 relative overflow-hidden" style={{ background: '#f4e9d8' }}>
+            <div className="absolute inset-1 rounded-sm overflow-hidden" style={{ background: 'linear-gradient(145deg, #e8d9c2 0%, #d4b78f 60%, #b38b5e 100%)' }}>
+              {/* Laptop */}
+              <div className="absolute left-[10%] top-[14%] w-[42%] h-[52%] rounded-sm shadow" style={{ background: '#1f2937' }}>
+                <div className="absolute inset-[6%] rounded-sm" style={{ background: '#0f172a' }} />
+                <div className="absolute left-[10%] top-[12%] right-[10%] space-y-0.5">
+                  <div className="h-0.5 bg-sky-400/70 w-3/4 rounded" />
+                  <div className="h-0.5 bg-sky-400/50 w-1/2 rounded" />
+                  <div className="h-0.5 bg-sky-400/40 w-5/6 rounded" />
+                </div>
+              </div>
+              {/* Coffee */}
+              <div className="absolute right-[14%] top-[18%] w-[11%] h-[16%] rounded-full" style={{ background: '#3f2a1f', boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.2)' }} />
+              {/* Plant */}
+              <div className="absolute right-[8%] bottom-[14%] w-[9%] h-[12%] rounded-full" style={{ background: '#166534' }} />
+              {/* Keyboard hint */}
+              <div className="absolute left-[14%] bottom-[10%] w-[28%] h-[6%] rounded" style={{ background: '#374151' }} />
+              {/* Subtle window light */}
+              <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent" />
+            </div>
+            {/* Tiny on-screen / sticky text */}
+            <div className="absolute bottom-[6%] left-[12%] text-[5px] text-[#3f2a1f]/80 tracking-wide">Side Project • launch v1.0</div>
+          </div>
+        );
+      }
+
+      // Listicle giant number
+      if (/listicle|giant number|big number/i.test(n)) {
+        return (
+          <div className="h-full w-full p-0.5 flex" style={{ background: '#2b1f3d' }}>
+            <div className="flex-1 p-1.5 flex flex-col justify-center">
+              <div className="text-[7px] font-bold text-white/90 leading-none">10 skills new frontend<br />engineers should learn in 2026</div>
+            </div>
+            <div className="w-[46%] flex items-center justify-center text-white text-[26px] font-black tracking-[-2px]" style={{ background: 'linear-gradient(135deg, #c026ff, #f472b6)', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+              10
+            </div>
+          </div>
+        );
+      }
+
+      // Magazine cover homage
+      if (/magazine|masthead|wired/i.test(n)) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#111' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden relative" style={{ background: '#111' }}>
+              <div className="absolute top-0 left-0 right-0 h-[13%] bg-white flex items-center justify-center">
+                <div className="text-[5.5px] font-black tracking-[2px] text-black">TECH MAG</div>
+              </div>
+              <div className="absolute top-[18%] left-1/2 -translate-x-1/2 text-center px-1">
+                <div className="text-[6.5px] leading-[7.5px] font-serif text-white">The next decade of AI<br />rewriting engineering work</div>
+              </div>
+              <div className="absolute bottom-[7%] left-[7%] w-[16%] h-[5%] flex gap-px">
+                {Array.from({ length: 8 }).map((_, i) => <div key={i} className="flex-1" style={{ background: i % 2 === 0 ? '#fff' : 'transparent' }} />)}
+              </div>
+              <div className="absolute bottom-[5%] right-[7%] text-[3px] text-white/60 tracking-widest">MAY 2026</div>
+            </div>
+          </div>
+        );
+      }
+
+      // Polaroid / modern collage
+      if (/polaroid|collage|retro/i.test(n)) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#d2b48c' }}>
+            <div className="h-full w-full rounded-sm relative" style={{ background: '#c9a77a' }}>
+              {[-11, 7, -5, 4].map((rot, idx) => (
+                <div key={idx} className="absolute bg-white shadow" style={{
+                  width: '24%', height: '28%',
+                  left: 8 + idx * 16 + '%', top: 12 + (idx % 2) * 7 + '%',
+                  transform: `rotate(${rot}deg)`,
+                }}>
+                  <div className="h-[62%] bg-[#e8dcc8]" />
+                  <div className="h-[38%] text-[3px] text-[#3f2a1f]/70 flex items-end justify-center pb-px">label</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // App / device mockup
+      if (/app mock|phone|device|interface/i.test(n)) {
+        return (
+          <div className="h-full w-full p-1 flex items-center justify-center" style={{ background: '#f1f5f9' }}>
+            <div className="w-[38%] h-[82%] rounded-2xl border border-black/20 bg-white overflow-hidden shadow relative">
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-full bg-black/20" />
+              <div className="p-1 pt-2 text-[4.5px]">
+                <div className="font-semibold tracking-tight">DeckMint</div>
+                <div className="text-[3.5px] text-black/60">Structured prompts for production graphics</div>
+                <div className="mt-1 h-1 bg-emerald-500/70 rounded" />
+                <div className="mt-0.5 space-y-0.5">
+                  <div className="h-0.5 bg-black/10 rounded" />
+                  <div className="h-0.5 bg-black/10 rounded w-5/6" />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Generic strong blog hero
+      return (
+        <div className="h-full w-full p-1 flex flex-col" style={{ background: bg, color: textColor }}>
+          <div className="flex-1 flex items-center justify-center text-center px-1">
+            <div className={`text-[9px] leading-tight ${titleFont} ${titleWeight}`} style={{ color: accent }}>{headline}</div>
+          </div>
+          <div className="text-[5px] opacity-60 text-center pb-0.5">Premium modern hero</div>
+        </div>
+      );
+    }
+
+    // === Quote cards (editorial + japanese minimal) ===
+    if (visual_type === 'quote-card') {
+      const isJapanese = /japanese|minimal|handwritten|slow/i.test((template.name || '').toLowerCase());
+      if (isJapanese) {
+        return (
+          <div className="h-full w-full flex items-center justify-center p-2" style={{ background: '#f8f1e3', color: '#3f2a1f' }}>
+            <div className="text-center">
+              <div className="text-[11px] leading-tight font-light tracking-[-0.1px]">Slow is fast.</div>
+              <div className="text-[4px] mt-1 opacity-60">2026.05 / @yourhandle</div>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="h-full w-full p-1 flex" style={{ background: '#e8e1d9' }}>
+          <div className="w-[32%] flex items-center justify-center">
+            <div className="w-6 h-7 rounded-full" style={{ background: '#4b4b4b', opacity: 0.85 }} />
+          </div>
+          <div className="flex-1 flex flex-col justify-center pr-1 text-[6.5px] leading-tight text-[#1f2937]">
+            Design is not just what it looks like and feels like.<br />Design is how it works.
+            <div className="text-[4px] mt-0.5 opacity-70">— Steve Jobs</div>
+          </div>
+        </div>
+      );
+    }
+
+    // === Planner / Habit tracker (premium productivity) ===
+    if (visual_type === 'planner') {
+      return (
+        <div className="h-full w-full p-1.5" style={{ background: '#f8f7f4', color: '#1f2937' }}>
+          <div className="text-[6px] font-semibold mb-0.5">Week of June 8</div>
+          <div className="space-y-0.5 text-[4.5px]">
+            {['Mon • Deep work 3h ✓', 'Tue • Ship v2', 'Wed • No meetings', 'Thu • Review + plan', 'Fri • Buffer & reset'].map((l, i) => (
+              <div key={i} className="flex items-center gap-0.5">
+                <div className="w-1.5 h-1.5 border border-[#166534] rounded-sm flex-shrink-0" />
+                <div>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // === Recipe card (appetizing modern) ===
+    if (visual_type === 'recipe') {
+      return (
+        <div className="h-full w-full p-1 flex flex-col" style={{ background: '#f8f5ef' }}>
+          <div className="h-5 bg-gradient-to-r from-[#854d0e] to-[#a16207] rounded-sm mb-0.5" />
+          <div className="text-[6px] font-semibold">One-Pan Miso Butter Pasta</div>
+          <div className="text-[4px] text-black/60">15 min • Serves 2</div>
+          <div className="mt-0.5 text-[4px] leading-tight">
+            200g pasta • 2 tbsp butter • 1 tbsp miso<br />Chili + scallion • Boil. Brown. Toss.
+          </div>
+        </div>
+      );
+    }
+
+    // === Itinerary (premium travel) ===
+    if (visual_type === 'itinerary') {
+      return (
+        <div className="h-full w-full p-1.5 text-[5px]" style={{ background: '#f1f5f9', color: '#1e2937' }}>
+          <div className="font-semibold tracking-tight mb-0.5">Kyoto • One Perfect Day</div>
+          <div className="space-y-0.5 leading-tight">
+            <div>07:30 — Coffee at % Arabica</div>
+            <div>08:30 — Fushimi Inari (early)</div>
+            <div>11:00 — Arashiyama bamboo</div>
+            <div>13:00 — Lunch at Kinsui</div>
+            <div>18:00 — Gion walk + dinner</div>
+          </div>
+        </div>
+      );
+    }
+
+    // === Before / After (strong educational contrast) ===
+    if (visual_type === 'before-after') {
+      const isUI = /ui|screen|redesign|login/i.test((template.name || '').toLowerCase());
+      if (isUI) {
+        return (
+          <div className="h-full w-full p-0.5 flex text-[4.5px]">
+            <div className="flex-1 bg-[#f43f5e] text-white p-0.5 rounded-l-sm">
+              <div className="font-bold mb-0.5">Before</div>
+              <div className="text-[3px] leading-none">Member Login<br />[rainbow chaos, bad fonts]</div>
+            </div>
+            <div className="w-px bg-black/30" />
+            <div className="flex-1 bg-white text-[#1e2937] p-0.5 rounded-r-sm border border-black/10">
+              <div className="font-bold mb-0.5 text-emerald-700">After</div>
+              <div className="text-[3px] leading-none">Welcome back<br />[beautiful modern form]</div>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="h-full w-full p-1 flex flex-col text-[5px]">
+          <div className="bg-[#e5e7eb] p-0.5 rounded-t">
+            <div className="font-semibold">Before</div>
+            <div className="text-[3.5px] leading-tight text-black/70">Long corporate paragraph full of buzzwords and zero clarity...</div>
+          </div>
+          <div className="bg-[#10b981] text-white p-0.5 rounded-b">
+            <div className="font-semibold">After</div>
+            <div className="text-[3.5px] leading-tight">Ship faster. Waste less. Sleep better.</div>
+          </div>
+        </div>
+      );
+    }
+
     // Default / hero-ish treatment (top heavy, centered, or generic card)
     return (
       <div className="h-full w-full flex flex-col" style={{ background: bg, color: textColor }}>

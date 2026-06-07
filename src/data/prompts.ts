@@ -391,11 +391,16 @@ export const promptTemplates: PromptTemplate[] = [
       { key: "project", label: "Project name or topic", example: "Side project from zero to launch", inputType: "text" },
     ],
     defaults: { project: "Side project from zero to launch" },
-    base_prompt: "Create a landscape 16:9 blog hero image. Scene: realistic top-down view of a warm wooden engineer desk with natural daylight. Centered laptop (screen shows visible code and browser tabs), coffee cup, open notebook, small green plant, mechanical keyboard. Low saturation, soft realistic shadows. On-image text: faint text on the laptop screen reading 'Side Project' and an optional yellow sticky note saying 'launch v1.0'. Style: photorealistic lifestyle tech photography, calm and aspirational. High production value suitable for article header or social preview. No heavy overlays.",
+    base_prompt: "Create a premium landscape 16:9 blog hero in 2026 high-production lifestyle tech photography style. Realistic top-down view of a warm wooden engineer desk with beautiful natural daylight from a window. Centered laptop (screen clearly shows code + browser tabs), nice coffee cup, open notebook, small healthy plant, mechanical keyboard. Low-to-medium saturation, soft realistic shadows, subtle depth and texture. On-image text: faint elegant text on the laptop screen reading 'Side Project' and an optional small yellow sticky note saying 'launch v1.0'. Style: photorealistic, calm, aspirational but lived-in, extremely high production value suitable for top-tier article header, newsletter, or social OG image. Modern creator-economy aesthetic — not dated, not flat, not corporate stock. Excellent composition and light.",
     original_prompt: "Draw a landscape blog cover (16:9 ratio) on the topic '[Side project from zero to launch] real workflow share'. Layout: top-down view of a workspace — laptop (with code and browser tabs visible on screen), coffee cup, notebook, plant, mechanical keyboard. Color: warm wooden desk, natural light, low saturation. On-image text: 'Side Project' faintly visible on laptop screen, optional sticky note saying 'launch v1.0'. Style: realistic photo feel, lifestyle tech, IG-style engineer desk.",
     visual_type: "blog-hero",
     thumbnail_visual: "Wide 16:9 realistic desk scene with laptop, coffee, notebook, plant, warm natural light, subtle text on screen.",
     tags: ["hero", "lifestyle", "realistic", "desk"],
+    model_tuning: {
+      general: "This template lives or dies on photorealism + natural light + subtle text. Tell the model 'premium 2026 lifestyle tech photography, natural window light, soft shadows, lived-in but aspirational, high production value'. Avoid heavy text overlays or clean studio looks.",
+      flux: "Flux is excellent at realistic desk scenes when you emphasize 'top-down perspective, natural daylight, soft realistic shadows, subtle depth of field'.",
+      openai: "gpt-image-1 needs 'photorealistic, natural lighting, lived-in workspace, no heavy graphic overlays' to avoid looking generated or flat.",
+    },
   },
 
   {
@@ -447,11 +452,14 @@ export const promptTemplates: PromptTemplate[] = [
       count: "10",
       headline: "skills new frontend engineers should learn in 2026",
     },
-    base_prompt: "Create a bold landscape 16:9 listicle hero. Left side: headline 'Frontend Must-Learns in 2026' and subtitle '[count] [headline]'. Right half: a massive, layered, gradient number '[count]' that fills most of the right side, with neon pink accents. Background deep purple gradient. Typography: strong bold sans for text, the giant number has presence and depth. On-image text rendered sharply. Style: modern listicle, confident, high shareability, clean composition. The number is the hero graphic.",
+    base_prompt: "Create a bold, confident landscape 16:9 listicle hero in premium 2026 modern editorial style. Left 42-45%: stacked headline and subtitle with strong hierarchy. Right side: a massive layered gradient number that feels like a design hero element, with vibrant neon pink/magenta accents and depth. Deep purple gradient background. Typography: confident bold sans for text; the giant number has presence, layering, and subtle glow. On-image text rendered sharply and beautifully. Style: high-visual-impact modern listicle / editorial hero, extremely shareable, clean powerful composition. The number is the star. High production value — not cheap, not 2018, not flat.",
     original_prompt: "Draw a landscape blog cover (16:9 ratio) on the topic '[10 skills new frontend engineers should learn in 2026]'. Layout: left side holds the headline and subtitle, right side has a layered, oversized number 10 (huge, gradient color). Color: deep purple gradient, neon pink accent. Typography: bold sans-serif title, the giant '10' takes the right half of the canvas. On-image text: headline 'Frontend Must-Learns in 2026', subtitle '10 Skills You Can't Miss', big number '10' on the right. Style: listicle vibe, visual impact, modern.",
     visual_type: "blog-hero",
     thumbnail_visual: "Wide modern cover, left text stack, enormous glowing gradient '10' dominating the right on deep purple-pink palette.",
     tags: ["listicle", "number", "bold", "modern"],
+    model_tuning: {
+      general: "The giant number must have real depth, layering and presence. Use language like 'massive layered gradient number with depth and subtle glow, modern editorial hero, 2026 production quality'.",
+    },
   },
 
   {
@@ -475,11 +483,14 @@ export const promptTemplates: PromptTemplate[] = [
       masthead: "TECH MAG",
       headline: "The next decade of AI rewriting engineering work",
     },
-    base_prompt: "Create a sophisticated portrait 3:4 magazine cover homage. Masthead at top: '[masthead]'. Large centered two-line main headline: '[headline]'. Bottom shows 'May 2026' and issue info. Bottom-left has a clean barcode with text 'Display until May 30' under it. Color: rich black-and-white with one fluorescent red or green accent (on masthead or a key line). Typography: refined serif for headlines and masthead, excellent editorial spacing and hierarchy. On-image text rendered with print precision. Style: high-end magazine cover, timeless, authoritative, print-production quality. Perfect alignment and breathing room.",
+    base_prompt: "Create a sophisticated portrait 3:4 magazine cover homage in true high-end 2026 print-production quality (Wired / The Atlantic / Monocle level). Masthead at very top: '[masthead]'. Large centered two-line main headline: '[headline]'. Bottom shows issue and date. Bottom-left has a clean, elegant barcode with small text underneath. Rich black-and-white dominant with one strong fluorescent accent (red or electric green) used sparingly on the masthead or a key line. Typography: refined elegant serif for masthead and headline with excellent editorial spacing, hierarchy and breathing room. Small clean sans for date and barcode text. On-image text rendered with print precision and craft. Style: timeless yet fresh, authoritative, luxurious print-quality magazine cover. Perfect alignment, generous but intentional margins. This must look like something a top publication would actually print or use as a premium digital asset.",
     original_prompt: "Draw a portrait cover (3:4 ratio) mimicking '[Wired]' magazine cover style on the topic '[The next decade of AI rewriting engineering work]'. Layout: top has the magazine masthead, center holds the main headline (two lines), bottom shows issue and date, bottom-left has a barcode. Color: black-and-white dominant, accent of red or fluorescent green. Typography: serif headlines, editorial-grade typesetting. On-image text: top masthead 'TECH MAG', main headline 'The Next Decade of AI Rewriting Engineering', subtitle '2026 Tech Trends', bottom 'May 2026', under barcode 'Display until May 30'. Style: magazine cover homage, editorial design, print-quality feel.",
     visual_type: "blog-hero",
     thumbnail_visual: "Tall 3:4 elegant magazine cover with masthead, big serif headline, date, and barcode element, black + one accent color.",
     tags: ["magazine", "editorial", "print", "sophisticated"],
+    model_tuning: {
+      general: "This is a high-craft template. Stress 'true print-production quality, refined serif with perfect spacing, luxurious margins, one accent used with restraint'. The result must feel like a real premium magazine cover from 2026, not a graphic design template.",
+    },
   },
 
   {
@@ -713,11 +724,14 @@ export const promptTemplates: PromptTemplate[] = [
       { key: "screen", label: "Screen being redesigned", example: "A login page", inputType: "text" },
     ],
     defaults: { screen: "A login page" },
-    base_prompt: "Create a landscape 16:9 before/after redesign comparison. Two screens side by side with a crisp vertical divider in the middle. Left side labeled 'Before' in the top-left: an intentionally ugly 90s-style login form (rainbow background, mismatched fonts, bad spacing, 'Member Login' header). Right side labeled 'After': the same login form redesigned in modern minimal style — white background, beautiful serif title, clear hierarchy, excellent spacing and typography. On-image text exactly as described. Style: strong educational contrast, design tutorial use. The improvement must be dramatic and instantly obvious.",
+    base_prompt: "Create a premium landscape 16:9 before/after redesign comparison graphic in 2026 high-production educational style. Two realistic device screens side by side with a crisp, elegant vertical divider. Left side clearly labeled 'Before' (top-left): intentionally ugly 90s-style login form — rainbow/mismatched colors, terrible fonts, cramped spacing, dated 'Member Login' header. Right side clearly labeled 'After' (top-right): the exact same login flow redesigned in beautiful modern minimal style — clean white or off-white, refined serif title, perfect hierarchy, generous spacing, excellent modern typography. The improvement must be dramatic and instantly obvious even at small sizes. On-image text exactly as described. Style: strong educational contrast for design tutorials and case studies, but executed at the highest modern production quality — not clipart, not ugly on purpose in a cheap way, the 'After' must look like something a world-class designer would actually ship today.",
     original_prompt: "Draw a landscape comparison image (16:9 ratio) on the topic '[A login page] before-and-after redesign'. Layout: two screen captures side by side, divider in the middle, labels Before / After above each. Color: left Before in 90s ugly style (mismatched fonts, rainbow background), right After in modern minimal (white background, serif title, clear hierarchy). On-image text: top-left 'Before', top-right 'After', both screenshots show a 'Member Login' form. Style: strong contrast, design-tutorial use.",
     visual_type: "before-after",
     thumbnail_visual: "Wide split view: chaotic colorful 90s login on left, clean modern white login on right, clear Before/After labels.",
     tags: ["before-after", "redesign", "ui", "contrast"],
+    model_tuning: {
+      general: "The contrast must be educational and beautiful at the same time. 'After' has to look legitimately premium and modern (2026 quality), not just 'less bad'. Use explicit language about refined typography, generous spacing, and high production value on the right side.",
+    },
   },
 
   {
@@ -766,11 +780,14 @@ export const promptTemplates: PromptTemplate[] = [
       person: "Steve Jobs",
       quote: "Design is not just what it looks like and feels like. Design is how it works.",
     },
-    base_prompt: "Create a square 1:1 quote card. Left side: elegant low-saturation silhouette-style profile of [person]. Right side: the quote in large, beautifully set bold serif: \"[quote]\". Small sans-serif attribution at bottom right: '— [person]'. Warm grey background, white quote text, monochrome silhouette. Style: editorial design, quote as hero, sophisticated and contemplative. Excellent typography and breathing room. Suitable for high-quality social bookmarking.",
+    base_prompt: "Create a square 1:1 premium editorial quote card in sophisticated 2026 style. Left third: elegant low-saturation silhouette-style profile of [person] (refined, not cartoonish). Right two-thirds: the quote set in large, beautifully kerned bold serif with excellent line length and breathing room: \"[quote]\". Small clean sans-serif attribution with em-dash at bottom right: '— [person]'. Warm sophisticated grey background, crisp white quote text, monochrome elegant silhouette. Style: high-craft editorial design, quote as visual hero, contemplative and timeless yet modern. Outstanding typography, generous but intentional margins. Suitable for high-quality social posts, Notion covers, or slide decks. This should look like something a top design studio or thoughtful founder would post.",
     original_prompt: "Draw a square quote card (1:1 ratio) on the topic '[Steve Jobs] design philosophy quote'. Layout: left side holds a low-saturation, silhouette-style profile of the person, right side holds the quote. Color: warm grey background, white quote text, monochrome silhouette. Typography: bold serif quote, small sans-serif attribution. On-image text: quote 'Design is not just what it looks like and feels like. Design is how it works.', attribution '— Steve Jobs'. Style: silhouette portrait, editorial design feel, quote as visual hero.",
     visual_type: "quote-card",
     thumbnail_visual: "Square elegant card with left silhouette profile, large serif quote on right, warm grey + white treatment.",
     tags: ["quote", "editorial", "wisdom", "silhouette"],
+    model_tuning: {
+      general: "Typography is everything here. Demand 'beautifully set bold serif with excellent kerning and line length, generous breathing room, high-craft editorial'. The silhouette must feel refined and elegant, not clipart.",
+    },
   },
 
   {
