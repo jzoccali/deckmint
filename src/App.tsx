@@ -1206,6 +1206,20 @@ export default function DeckMintApp() {
 
         {/* Library Grid */}
         <div className="library">
+          {/* Prominent, honest onboarding — this is the #1 thing users have said is missing */}
+          <div className="mb-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3 text-[12px] leading-snug">
+            <div className="font-semibold mb-1">What DeckMint actually is (30 seconds)</div>
+            <div className="text-[var(--text-secondary)]">
+              A structured prompt library + editor for making high-quality, modern social graphics and carousels (the kind people actually save and share in 2026).
+            </div>
+            <div className="mt-1.5 text-[11px]">
+              <strong>Loop:</strong> Browse templates → Edit the 6 fields on the right (live preview updates) → Generate a real PNG (local canvas or with your OpenAI key in the sidebar) → Export the image + the exact prompt, or click the emerald button on the card to make that beautiful result the permanent thumbnail for the template.
+            </div>
+            <div className="mt-1 text-[10px] text-[var(--text-muted)]">
+              The CSS previews will always look cheap at small sizes. The "✨ Generate &amp; use as thumbnail" buttons (and the big seed button below) are how you make the library look like a serious collection of high-end work instead of a 1997 internal tool.
+            </div>
+          </div>
+
           <div className="library-header">
             <h2>
               {mode === 'library' && (isCustomFilter ? 'Custom Templates' : 'Prompt Library')}
@@ -1222,12 +1236,12 @@ export default function DeckMintApp() {
                 The CSS approximations will always look dated. Click this (or the per-card button) to
                 use the actual prompts + your AI key (or local renderer) to populate beautiful real examples. */}
             <button
-              className="ml-auto text-[10px] px-2 py-1 rounded border border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+              className="ml-auto text-[11px] px-3 py-1.5 rounded-md border border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 font-medium shadow-sm"
               onClick={async () => {
-                const targets = filtered.slice(0, 12); // don't spam too many at once
+                const targets = filtered.slice(0, 16);
                 let count = 0;
                 for (const t of targets) {
-                  if (templateExampleOverrides[String(t.id)]) continue; // already has a good one
+                  if (templateExampleOverrides[String(t.id)]) continue;
                   const example = getExampleStructuredForTemplate(t);
                   const prompt = buildStructuredPrompt(t, example as any);
                   try {
@@ -1244,14 +1258,17 @@ export default function DeckMintApp() {
                       (usePromptStore.getState() as any).recordGeneration?.(prompt, t.id, 'structured', imageDataUrl);
                       count++;
                     }
-                    // small delay so we don't hammer the key or the canvas
-                    await new Promise(r => setTimeout(r, 120));
+                    await new Promise(r => setTimeout(r, 100));
                   } catch {}
                 }
-                toast.success(`Seeded ${count} high-quality examples`, { description: 'Library now shows real generations for those cards. Repeat for the rest or add your OpenAI key for the photoreal ones.' });
+                toast.success(`Seeded ${count} high-quality examples into the library`, { 
+                  description: count > 0 
+                    ? 'The grid now shows real output from the prompts for those templates. This is how it stops looking low-end.' 
+                    : 'Most of these already had promoted images. Click the per-card emerald buttons for the rest.' 
+                });
               }}
             >
-              ✨ Seed high-quality examples for visible cards
+              ✨ Seed high-quality real examples (recommended)
             </button>
           </div>
 
@@ -1390,25 +1407,13 @@ export default function DeckMintApp() {
                     )}
                     <div className="meta">
                       <div className="name">{t.name}</div>
-                      <div className="category">{t.category.replace('IG ', '')}</div>
 
-                      {/* Choice signal — helps you quickly decide if this is the right template for the job.
-                          Pulled from the hardened prompt metadata (category + visual_type + layout + tags). */}
-                      <div className="text-[8px] text-[var(--text-muted)] leading-tight mt-0.5 line-clamp-2">
-                        {usesRichLivePreview ? 'Premium modern example • production-ready' :
-                         t.visual_type.includes('carousel') ? 'Series-ready • lock style from cover' :
-                         /knowledge|explainer|step/i.test(t.name) ? 'Clear hierarchy • 3–5 exact points' :
-                         t.visual_type === 'infographic' ? 'Production infographic • exact elements' :
-                         'Strong visual system • text fidelity critical'}
+                      {/* Minimal signal — the visual should do the talking. */}
+                      <div className="text-[7.5px] text-[var(--text-muted)] leading-tight mt-0.5 line-clamp-1">
+                        {usesRichLivePreview ? 'Modern high-signal example' : t.category.replace('IG ', '')}
                       </div>
 
-                      <div className="badges">
-                        <span className="badge">{t.aspect_ratio}</span>
-                        {isInSeries && <span className="badge">In series</span>}
-                      </div>
-
-                      {/* Quick actions on the card itself (library love).
-                          These stop propagation so you can act without fully selecting if you want. */}
+                      {/* Quick actions — the emerald one is the important "make this card look high-end" action */}
                       <div className="mt-1 flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
                         <button
                           className="text-[8px] px-1.5 py-px rounded border border-[var(--border)] hover:border-[var(--accent)]"

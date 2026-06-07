@@ -208,6 +208,75 @@ export const LiveStructuredPreview: React.FC<Props> = ({ template, structured, s
       );
     }
 
+    // === Rich modern carousel roles (the ones that looked flat and tragic before) ===
+    if (visual_type.includes('carousel')) {
+      if (visual_type === 'carousel-cover' || /cover|hook|question|personal|story/i.test((template.name || '').toLowerCase())) {
+        const q = textLines[0] || 'The one mistake that cost me $47k';
+        const sub = textLines[1] || 'A 4-slide story about learning the hard way';
+        return (
+          <div className="h-full w-full p-1.5 flex flex-col" style={{ background: bg, color: textColor }}>
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-1">
+              <div className={`text-[10px] leading-[12px] font-extrabold ${titleFont}`} style={{ color: accent }}>{q}</div>
+              <div className="text-[6px] mt-1 opacity-75">{sub}</div>
+            </div>
+            <div className="text-[4.5px] text-center opacity-60 tracking-wide">Swipe to see what I would do differently →</div>
+          </div>
+        );
+      }
+      if (visual_type === 'carousel-interior' || /interior|standard/i.test((template.name || '').toLowerCase())) {
+        const tag = textLines[0] || '01 / 04 • Mistake #2';
+        const h = textLines[1] || 'Chasing every shiny object';
+        const b1 = textLines[2] || 'I said yes to every opportunity for 18 months.';
+        const b2 = textLines[3] || 'Here is the simple filter I use now.';
+        return (
+          <div className="h-full w-full p-1.5 flex flex-col" style={{ background: bg, color: textColor }}>
+            <div className="text-[5px] opacity-60 mb-0.5">{tag}</div>
+            <div className={`text-[9px] leading-tight font-semibold mb-1`} style={{ color: accent }}>{h}</div>
+            <div className="flex-1 text-[6px] leading-[8px] opacity-85">
+              <div>{b1}</div>
+              <div className="mt-0.5">{b2}</div>
+            </div>
+            <div className="mt-1 text-[4px] opacity-60 text-center">Swipe for the next →</div>
+          </div>
+        );
+      }
+      if (visual_type === 'carousel-closing' || /closing|cta|final/i.test((template.name || '').toLowerCase())) {
+        const ask = textLines[0] || 'Which of these mistakes are you making right now?';
+        return (
+          <div className="h-full w-full p-1.5 flex flex-col" style={{ background: bg, color: textColor }}>
+            <div className={`text-[8px] leading-tight font-semibold mb-1.5`} style={{ color: accent }}>{ask}</div>
+            <div className="flex-1 flex flex-col gap-1 justify-center">
+              {['Comment the number', 'Save this', 'DM me "FILTER"'].map((c, i) => (
+                <div key={i} className="text-center text-[5.5px] py-[1px] rounded-full border" style={{ borderColor: accent + '50', background: accent + '12' }}>{c}</div>
+              ))}
+            </div>
+            <div className="text-[4px] text-center opacity-70">@yourhandle</div>
+          </div>
+        );
+      }
+    }
+
+    // === Rich knowledge / explainer cards (the light 3-point ones that still looked 1997) ===
+    if (visual_type === 'knowledge-card' || /knowledge|explainer|concept/i.test((template.name || '').toLowerCase())) {
+      const t1 = textLines[0] || textLines[1] || 'A bridge between programs';
+      const t2 = textLines[1] || textLines[2] || 'Moves data from A to B';
+      const t3 = textLines[2] || textLines[3] || 'How frontend and backend work together';
+      return (
+        <div className="h-full w-full p-1.5 flex flex-col" style={{ background: bg, color: textColor }}>
+          <div className={`text-[8px] leading-[10px] font-semibold mb-1 ${titleFont}`} style={{ color: accent }}>{headline}</div>
+          <div className="flex-1 grid grid-rows-3 gap-1">
+            {[t1, t2, t3].map((txt, i) => (
+              <div key={i} className="rounded-md border px-1.5 py-0.5 flex items-center text-[5.5px] leading-tight" style={{ borderColor: accent + '35', background: 'rgba(255,255,255,0.85)' }}>
+                <div className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0" style={{ background: accent }} />
+                <div className="truncate">{txt}</div>
+              </div>
+            ))}
+          </div>
+          <div className="text-[4px] opacity-60 mt-0.5">In 3 Minutes</div>
+        </div>
+      );
+    }
+
     // === Density / Choropleth map style (high-value for population density, demographic maps, by-state data) ===
     if (isDensityMap) {
       // Parse real state + percentage lines from onImageText for accurate, labeled tiles.
