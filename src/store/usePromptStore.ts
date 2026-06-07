@@ -132,6 +132,14 @@ interface PromptState {
   setAiConfig: (partial: Partial<PromptState['ai']>) => void;
   clearAiKey: () => void;
 
+  // Promoted real example images for the library grid.
+  // Allows users to take a high-quality PNG they generated (local or via their own AI key)
+  // and make it the canonical visual shown for that template/custom in the browse grid.
+  // Key: for base templates use the numeric id as string (e.g. "6"), for customs use the custom id (e.g. "custom-xxx").
+  templateExampleOverrides: Record<string, string>;
+  setTemplateExampleOverride: (key: string, dataUrl: string) => void;
+  clearTemplateExampleOverride: (key: string) => void;
+
   // High-level action: take the current assembled prompt and (if configured) call a real model.
   // Always records via recordGeneration so the result appears in "Latest" + history with full actions.
   generateRealImage: (prompt: string, templateId: number | null, source: 'variables' | 'structured' | 'edit') => Promise<void>;
@@ -160,6 +168,8 @@ export const usePromptStore = create<PromptState>((set, get) => ({
 
   // AI is off by default. When the user adds a key it becomes a first-class (but optional) path.
   ai: { provider: 'none', openaiApiKey: undefined, model: 'gpt-image-1' },
+
+  templateExampleOverrides: {},
 
   selectTemplate: (id) => set({ selectedId: id }),
 
@@ -446,6 +456,21 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       ai: { ...state.ai, openaiApiKey: undefined, provider: 'none' },
     })),
 
+  setTemplateExampleOverride: (key, dataUrl) =>
+    set((state) => ({
+      templateExampleOverrides: {
+        ...state.templateExampleOverrides,
+        [key]: dataUrl,
+      },
+    })),
+
+  clearTemplateExampleOverride: (key) =>
+    set((state) => {
+      const next = { ...state.templateExampleOverrides };
+      delete next[key];
+      return { templateExampleOverrides: next };
+    }),
+
   // The money action: if the user has configured an OpenAI key, call the real image model with the exact prompt
   // we would have given them to copy-paste. Result (as data URL) is recorded into the same history as local PNGs.
   generateRealImage: async (prompt, templateId, source) => {
@@ -527,6 +552,8 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         // We intentionally do NOT export the raw OpenAI key for safety.
         // We do export the provider + model choice so the receiving side knows the preference.
         ai: { provider: state.ai.provider, model: state.ai.model },
+        // Promoted real example images chosen by the user for the library grid.
+        templateExampleOverrides: state.templateExampleOverrides,
       },
     };
     return JSON.stringify(payload, null, 2);
@@ -585,6 +612,13 @@ export const usePromptStore = create<PromptState>((set, get) => ({
             provider: data.ai.provider || state.ai.provider,
             model: data.ai.model || state.ai.model,
           };
+        }
+
+        // Promoted library example images
+        if (data.templateExampleOverrides && typeof data.templateExampleOverrides === 'object') {
+          next.templateExampleOverrides = merge
+            ? { ...state.templateExampleOverrides, ...data.templateExampleOverrides }
+            : data.templateExampleOverrides;
         }
 
         return next;

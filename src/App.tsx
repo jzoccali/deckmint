@@ -19,7 +19,7 @@ import { usePlatform } from './hooks/usePlatform';
 // This gives you "come back tomorrow and your carousels + custom templates + deep edits are still there".
 // We also persist generations (including the local PNG data URLs) so your produced assets survive refresh.
 function usePersistedStore() {
-  const { structuredEdits, customTemplates, series, seriesNotes, savedPacks, generations, ai, setStructuredEdit, setSeries, setSeriesNote } = usePromptStore();
+  const { structuredEdits, customTemplates, series, seriesNotes, savedPacks, generations, ai, templateExampleOverrides, setStructuredEdit, setSeries, setSeriesNote } = usePromptStore();
 
   // Load once on mount
   React.useEffect(() => {
@@ -85,6 +85,17 @@ function usePersistedStore() {
           }
         } catch {}
       }
+
+      // Load promoted example images for library cards (real high-end graphics the user chose)
+      const savedOverrides = localStorage.getItem('deckmint:templateExampleOverrides');
+      if (savedOverrides) {
+        try {
+          const parsed = JSON.parse(savedOverrides);
+          if (parsed && typeof parsed === 'object') {
+            (usePromptStore.getState() as any).templateExampleOverrides = parsed;
+          }
+        } catch {}
+      }
     } catch {}
   }, []);
 
@@ -98,8 +109,9 @@ function usePersistedStore() {
       localStorage.setItem('deckmint:savedPacks', JSON.stringify(savedPacks));
       localStorage.setItem('deckmint:generations', JSON.stringify(generations));
       localStorage.setItem('deckmint:ai', JSON.stringify(ai));
+      localStorage.setItem('deckmint:templateExampleOverrides', JSON.stringify(templateExampleOverrides));
     } catch {}
-  }, [structuredEdits, customTemplates, series, seriesNotes, savedPacks, generations, ai]);
+  }, [structuredEdits, customTemplates, series, seriesNotes, savedPacks, generations, ai, templateExampleOverrides]);
 
   return null;
 }
@@ -157,6 +169,9 @@ export default function DeckMintApp() {
     generateRealImage,
     exportWorkspace,
     importWorkspace,
+    templateExampleOverrides,
+    setTemplateExampleOverride,
+    clearTemplateExampleOverride,
   } = usePromptStore();
 
   const selected = useMemo(
@@ -1027,14 +1042,24 @@ export default function DeckMintApp() {
                       onClick={() => handleSelectCustom(custom.id)}
                       style={{ borderColor: isActive ? 'var(--accent)' : undefined }}
                     >
-                      {/* Use the same live visual preview component (scaled down) so browsing your saved customs feels connected to the editing experience */}
-                      <div style={{ transform: 'scale(0.82)', transformOrigin: 'top left', width: '122%' }}>
-                        <LiveStructuredPreview
-                          template={base || templates[0]}
-                          structured={custom.structured as any}
-                          size="md"
-                        />
-                      </div>
+                      {/* Priority: promoted real image for this custom (if the user chose one), otherwise the live structured preview of the saved values. */}
+                      {templateExampleOverrides[custom.id] ? (
+                        <div className="thumbnail-container" style={{ overflow: 'hidden' }}>
+                          <img
+                            src={templateExampleOverrides[custom.id]}
+                            alt={`Example for ${custom.name}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                        </div>
+                      ) : (
+                        <div style={{ transform: 'scale(0.82)', transformOrigin: 'top left', width: '122%' }}>
+                          <LiveStructuredPreview
+                            template={base || templates[0]}
+                            structured={custom.structured as any}
+                            size="md"
+                          />
+                        </div>
+                      )}
                       <div className="meta">
                         <div className="name">{custom.name}</div>
                         <div className="category">
@@ -1076,7 +1101,16 @@ export default function DeckMintApp() {
               filtered.map((t) => {
                 const isSelected = t.id === selectedId;
                 const isInSeries = series.includes(t.id);
-                const isDataViz = /statistical|data fact|infographic/i.test(t.name) || t.visual_type.includes('data') || t.category.includes('Infographic');
+                // Use the richer live structured preview for anything where we have good example content.
+                // This makes the library actually show what decent output from the prompt is supposed to look like,
+                // instead of collapsing everything to generic minimal CSS cards.
+                const isDataViz =
+                  /statistical|data fact|infographic/i.test(t.name) ||
+                  t.visual_type.includes('data') ||
+                  t.category.includes('Infographic') ||
+                  t.visual_type.includes('carousel') ||
+                  t.visual_type === 'blog-hero' ||
+                  t.visual_type === 'infographic';
 
                 return (
                   <div
@@ -1085,9 +1119,17 @@ export default function DeckMintApp() {
                     onClick={() => handleSelect(t.id)}
                     title="Click to inspect — the live preview in the Structured tab will show exactly what a filled version looks like"
                   >
-                    {/* For data / chart / infographic templates we show a richer filled preview using the live renderer.
-                        This gives you real "what the output from this template will actually look like" examples right in the library. */}
-                    {isDataViz ? (
+                    {/* Priority: if the user has promoted a real high-quality generation (local PNG or AI) as the example for this template,
+                        show that actual image. This is the "use our own prompts to produce high-end graphics of what they do" path. */}
+                    {templateExampleOverrides[String(t.id)] ? (
+                      <div className="thumbnail-container" data-ratio={t.aspect_ratio} style={{ overflow: 'hidden' }}>
+                        <img
+                          src={templateExampleOverrides[String(t.id)]}
+                          alt={`Example for ${t.name}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
+                      </div>
+                    ) : isDataViz ? (
                       <div style={{ transform: 'scale(0.78)', transformOrigin: 'top left', width: '128%' }}>
                         <LiveStructuredPreview
                           template={t}
@@ -1239,6 +1281,22 @@ export default function DeckMintApp() {
                       ))}
                       <span className="badge">{selected.aspect_ratio}</span>
                     </div>
+
+                    {/* If the user has promoted a real generated image for this template, show a clear indicator + reset. */}
+                    {templateExampleOverrides[String(selected.id)] && (
+                      <div className="mt-1.5 flex items-center gap-2 text-[9px]">
+                        <span className="px-1.5 py-px rounded bg-emerald-100 text-emerald-700">Using your promoted example image in the library</span>
+                        <button
+                          className="text-red-600 hover:underline"
+                          onClick={() => {
+                            clearTemplateExampleOverride(String(selected.id));
+                            toast('Reverted library card to default visual');
+                          }}
+                        >
+                          Reset to default mock
+                        </button>
+                      </div>
+                    )}
 
                     {/* Prompt quality notes — surfaces the aggressive hardening work we did on the 30 templates.
                         These are the exact "make sure it is as dynamic and accurate as Grok images" instructions,
@@ -1783,6 +1841,28 @@ export default function DeckMintApp() {
                           Regenerate this with real AI
                         </button>
                       )}
+
+                      {/* The key "I produced something high-end with this prompt — make the library show it" action */}
+                      {lastGenerated?.imageDataUrl && (
+                        <button
+                          className="action-btn flex-1 border border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                          onClick={() => {
+                            const activeCustom = (usePromptStore.getState() as any).selectedCustomId as string | null;
+                            const key = activeCustom ? activeCustom : (lastGenerated.templateId != null ? String(lastGenerated.templateId) : null);
+                            if (key && lastGenerated.imageDataUrl) {
+                              setTemplateExampleOverride(key, lastGenerated.imageDataUrl);
+                              const displayName = activeCustom
+                                ? (customTemplates.find(c => c.id === activeCustom)?.name || 'custom')
+                                : (templates.find(tt => tt.id === lastGenerated.templateId)?.name || 'template');
+                              toast.success('Library updated', { description: `This image is now the example shown for "${displayName}" in the grid.` });
+                            } else {
+                              toast.info('Generate or load a template first so we know which card to update.');
+                            }
+                          }}
+                        >
+                          Use this image as the example in the library
+                        </button>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -1811,9 +1891,23 @@ export default function DeckMintApp() {
                               <span className="opacity-60">{g.source}</span>
                             </div>
                             <div className="truncate text-[var(--text-secondary)] text-xs mt-0.5">{g.prompt.slice(0, 110)}…</div>
-                            <div className="flex gap-2 mt-1">
+                            <div className="flex gap-2 mt-1 items-center">
                               <span className="text-[8px] text-[var(--accent)]">click row to copy prompt</span>
                               {g.imageDataUrl && <span className="text-[8px] text-[var(--text-muted)]">has local PNG</span>}
+                              {g.imageDataUrl && g.templateId != null && (
+                                <button
+                                  className="ml-auto text-[8px] px-1.5 py-px rounded border border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const key = String(g.templateId);
+                                    setTemplateExampleOverride(key, g.imageDataUrl!);
+                                    const tmplName = templates.find(tt => tt.id === g.templateId)?.name || 'template';
+                                    toast.success('Library updated', { description: `Using this image as the example for "${tmplName}"` });
+                                  }}
+                                >
+                                  Use as library example
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>

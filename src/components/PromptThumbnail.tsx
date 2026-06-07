@@ -169,6 +169,25 @@ export const PromptThumbnail: React.FC<Props> = ({ template, size = 'md', classN
     // === Carousels — differentiate roles visually ===
     if (visual_type.includes('carousel')) {
       if (visual_type === 'carousel-cover' || /cover|hook|question/i.test(nameLower)) {
+        const isPersonal = /personal|story|journey|hand-drawn|zine|silhouette/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+
+        if (isPersonal) {
+          // Warm, hand-drawn personal story cover
+          return (
+            <div className="h-full w-full p-1 flex flex-col" style={{ background: '#f5e8d3', color: '#3f2a1f' }}>
+              {/* soft silhouette shape */}
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-6 h-7 rounded-full" style={{ background: '#8b5e3c', opacity: 0.35 }} />
+              </div>
+              <div className="text-center pb-0.5">
+                <div className="text-[5.5px] font-medium leading-none">From X to Y</div>
+                <div className="text-[3.5px] opacity-70 mt-0.5">The 3 traps I learned</div>
+              </div>
+            </div>
+          );
+        }
+
+        // Default bold hook cover
         return (
           <div className="h-full w-full p-1 flex flex-col" style={{ background: bg, color: textColor }}>
             <div className="flex-1 flex items-center justify-center px-1 text-center">
@@ -182,31 +201,37 @@ export const PromptThumbnail: React.FC<Props> = ({ template, size = 'md', classN
         );
       }
       if (visual_type === 'carousel-interior' || /interior|standard/i.test(nameLower)) {
+        // Clearly a content slide: tag + headline + body lines + small visual/code block at bottom
         return (
           <div className="h-full w-full p-1 flex flex-col" style={{ background: bg, color: textColor }}>
-            <div className="text-[5px] mb-0.5 opacity-70">01 / 04</div>
-            <div className="h-1.5 w-4/5 rounded mb-1" style={{ background: accent }} />
+            <div className="text-[4.5px] mb-0.5 font-medium opacity-70">01 / 04 • Bad habit 1</div>
+            <div className="h-1 w-4/5 rounded mb-0.5" style={{ background: accent }} />
             <div className="flex-1 space-y-0.5">
-              <div className="h-1 bg-black/10 rounded" />
-              <div className="h-1 w-5/6 bg-black/10 rounded" />
-              <div className="h-1 w-4/5 bg-black/10 rounded" />
+              <div className="h-0.5 bg-black/10 rounded w-full" />
+              <div className="h-0.5 bg-black/10 rounded w-5/6" />
+              <div className="h-0.5 bg-black/10 rounded w-4/5" />
             </div>
-            <div className="h-1.5 w-1/2 mx-auto rounded mt-0.5" style={{ background: accent, opacity: 0.3 }} />
+            {/* small code / visual snippet at bottom */}
+            <div className="h-3 mt-0.5 rounded-sm border" style={{ borderColor: accent + '40', background: accent + '10' }}>
+              <div className="text-[3px] px-0.5 pt-0.5 opacity-60 font-mono">const x = ...</div>
+            </div>
+            <div className="text-[3.5px] text-center mt-0.5 opacity-50">Swipe for the next →</div>
           </div>
         );
       }
       if (visual_type === 'carousel-closing' || /closing|cta|final/i.test(nameLower)) {
+        // Clearly action-oriented: three big round CTAs + handle
         return (
           <div className="h-full w-full p-1 flex flex-col" style={{ background: bg, color: textColor }}>
-            <div className="h-1.5 w-3/4 rounded mb-1" style={{ background: accent }} />
-            <div className="flex-1 flex items-end justify-around pb-1">
-              {['F','S','Sh'].map((lab, i) => (
-                <div key={i} className="w-4 h-4 rounded-full flex items-center justify-center text-[5px]" style={{ background: accent + '33', color: accent }}>
+            <div className="h-1 w-3/4 rounded mb-1" style={{ background: accent }} />
+            <div className="flex-1 flex items-center justify-around pb-0.5">
+              {['Follow', 'Save', 'Share'].map((lab, i) => (
+                <div key={i} className="w-5 h-5 rounded-full flex items-center justify-center text-[3.5px] font-medium border" style={{ background: accent + '22', borderColor: accent + '55', color: accent }}>
                   {lab}
                 </div>
               ))}
             </div>
-            <div className="text-[4.5px] text-center opacity-60">@you</div>
+            <div className="text-[3.5px] text-center opacity-60">@yourhandle</div>
           </div>
         );
       }
@@ -221,7 +246,146 @@ export const PromptThumbnail: React.FC<Props> = ({ template, size = 'md', classN
       );
     }
 
+    // === Blog / Article heroes — make these actually distinct and representative ===
     if (visual_type === 'blog-hero' || visual_type === 'mockup') {
+      const isDesk = /engineer|desk|workspace|laptop/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+      const isTicket = /ticket|pickup|metaphor|abstract.*concept|promise/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+      const isListicle = /listicle|giant number|big number|10 |count/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+      const isMagazine = /magazine|wired|masthead|barcode|serif/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+      const isPolaroid = /polaroid|collage|washi|scattered|retro/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+      const isAppMock = /mockup|app interface|phone|device/i.test(nameLower + ' ' + (template.thumbnail_visual || ''));
+
+      // Engineer's desk — warm top-down workspace vibe
+      if (isDesk) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#f4e9d8' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden relative" style={{ background: '#e8d9c2' }}>
+              {/* desk surface */}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(145deg, #d4b78f 0%, #b38b5e 100%)' }} />
+              {/* laptop */}
+              <div className="absolute left-[12%] top-[18%] w-[38%] h-[48%] rounded-sm" style={{ background: '#222', boxShadow: '0 2px 0 #111' }}>
+                <div className="absolute inset-[8%] rounded-sm" style={{ background: '#0a2540' }} />
+                {/* screen glow / code lines */}
+                <div className="absolute left-[12%] top-[18%] w-[30%] h-0.5 bg-[#3b82f6]/60" />
+                <div className="absolute left-[12%] top-[28%] w-[22%] h-0.5 bg-[#3b82f6]/40" />
+              </div>
+              {/* coffee cup */}
+              <div className="absolute right-[18%] top-[22%] w-[9%] h-[14%] rounded-full" style={{ background: '#3f2a1f', border: '1px solid #2a1c14' }} />
+              {/* plant */}
+              <div className="absolute right-[12%] bottom-[18%] w-[7%] h-[10%] rounded-full" style={{ background: '#166534' }} />
+              {/* keyboard hint */}
+              <div className="absolute left-[18%] bottom-[14%] w-[22%] h-[5%] rounded" style={{ background: '#3a3a3a' }} />
+            </div>
+          </div>
+        );
+      }
+
+      // Abstract metaphor — physical ticket on bokeh counter
+      if (isTicket) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#f5e8d3' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden relative" style={{ background: '#e8d4b8' }}>
+              {/* soft counter bokeh suggestion */}
+              <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.6) 0%, transparent 60%)' }} />
+              {/* the ticket itself */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[52%] h-[38%] rounded-sm shadow" style={{ background: '#f8f1e3', border: '1px solid #c9b18a' }}>
+                <div className="text-center pt-1">
+                  <div className="text-[7px] font-mono tracking-[1px]" style={{ color: '#3f2a1f' }}>#042</div>
+                  <div className="h-px w-3/4 mx-auto my-0.5" style={{ background: '#c9b18a' }} />
+                  <div className="text-[4.5px] leading-none" style={{ color: '#3f2a1f' }}>Your number<br />is ready</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Listicle — giant number treatment
+      if (isListicle) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#2b1f3d' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden flex">
+              <div className="flex-1 p-1 flex flex-col justify-center">
+                <div className="h-1 w-3/4 bg-white/30 rounded mb-0.5" />
+                <div className="h-0.5 w-1/2 bg-white/20 rounded" />
+              </div>
+              <div className="w-[42%] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #c026ff 0%, #f472b6 100%)' }}>
+                <div className="text-[22px] font-black tracking-tighter text-white drop-shadow" style={{ opacity: 0.95 }}>10</div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Magazine cover style
+      if (isMagazine) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#111' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden relative" style={{ background: '#111' }}>
+              <div className="absolute top-0 left-0 right-0 h-[14%] flex items-center justify-center" style={{ background: '#fff', color: '#111' }}>
+                <div className="text-[5px] font-bold tracking-[1.5px]">TECH MAG</div>
+              </div>
+              <div className="absolute top-[22%] left-1/2 -translate-x-1/2 text-center px-1">
+                <div className="text-[6px] leading-tight font-serif text-white">The next decade of<br />AI rewriting work</div>
+              </div>
+              {/* barcode */}
+              <div className="absolute bottom-[8%] left-[8%] w-[18%] h-[7%] flex gap-px">
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <div key={i} className="flex-1" style={{ background: i % 2 === 0 ? '#fff' : 'transparent' }} />
+                ))}
+              </div>
+              <div className="absolute bottom-[6%] right-[8%] text-[3.5px] text-white/70">MAY 2026</div>
+            </div>
+          </div>
+        );
+      }
+
+      // Retro Polaroid collage
+      if (isPolaroid) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#d2b48c' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden relative" style={{ background: '#c9a77a' }}>
+              {/* 3 angled polaroids */}
+              {[ -12, 6, -4 ].map((rot, idx) => (
+                <div
+                  key={idx}
+                  className="absolute bg-white shadow-sm"
+                  style={{
+                    width: '28%',
+                    height: '32%',
+                    left: 12 + idx * 18 + '%',
+                    top: 18 + (idx % 2) * 8 + '%',
+                    transform: `rotate(${rot}deg)`,
+                    border: '1px solid #e5d9c2'
+                  }}
+                >
+                  <div className="h-[68%] bg-[#e5d9c2]" />
+                  <div className="h-[32%] text-[3px] flex items-end justify-center pb-0.5 text-[#3f2a1f]/70">label</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // App / device mockup
+      if (isAppMock) {
+        return (
+          <div className="h-full w-full p-0.5" style={{ background: '#e5e7eb' }}>
+            <div className="h-full w-full rounded-sm overflow-hidden border border-black/10 bg-white flex items-center justify-center">
+              <div className="w-[42%] h-[78%] rounded-xl border border-black/30 relative" style={{ background: '#f8fafc' }}>
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-black/20" />
+                <div className="absolute top-[18%] left-[10%] right-[10%] h-1 bg-emerald-400/70 rounded" />
+                <div className="absolute top-[28%] left-[10%] right-[10%] space-y-0.5">
+                  {[0,1,2].map(i => <div key={i} className="h-0.5 bg-black/15 rounded" />)}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Generic blog hero fallback (still better than the old one)
       return (
         <div className="h-full w-full p-0.5" style={{ background: '#e5e7eb' }}>
           <div className="h-full w-full rounded-sm overflow-hidden border border-black/10" style={{ background: bg }}>
