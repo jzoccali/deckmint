@@ -1198,9 +1198,9 @@ export default function DeckMintApp() {
             </div>
           </div>
 
-          <div className="mt-auto p-3 text-[10px] text-[var(--text-muted)] border-t border-[var(--border)]">
-            Thumbnails are live visual mocks.<br />
-            Real images generated from the honed prompts.
+          <div className="mt-auto p-3 text-[10px] text-[var(--text-muted)] border-t border-[var(--border)] leading-snug">
+            CSS mocks will always look dated.<br />
+            Use the emerald "✨ Generate &amp; use as thumbnail" buttons on the cards (or the seed button above) to populate the library with real high-quality generations from the actual prompts. That's how this thing stops looking like 1997.
           </div>
         </div>
 
@@ -1217,6 +1217,42 @@ export default function DeckMintApp() {
                 ? `${displayedCustoms.length} custom template${displayedCustoms.length === 1 ? '' : 's'}` 
                 : `${filtered.length} of ${templates.length}`}
             </div>
+
+            {/* The real way to make the library look like a serious collection of high-end graphics.
+                The CSS approximations will always look dated. Click this (or the per-card button) to
+                use the actual prompts + your AI key (or local renderer) to populate beautiful real examples. */}
+            <button
+              className="ml-auto text-[10px] px-2 py-1 rounded border border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+              onClick={async () => {
+                const targets = filtered.slice(0, 12); // don't spam too many at once
+                let count = 0;
+                for (const t of targets) {
+                  if (templateExampleOverrides[String(t.id)]) continue; // already has a good one
+                  const example = getExampleStructuredForTemplate(t);
+                  const prompt = buildStructuredPrompt(t, example as any);
+                  try {
+                    if (ai.openaiApiKey) {
+                      await generateRealImage(prompt, t.id, 'structured');
+                      const latest = (usePromptStore.getState() as any).lastGenerated;
+                      if (latest?.imageDataUrl) {
+                        setTemplateExampleOverride(String(t.id), latest.imageDataUrl);
+                        count++;
+                      }
+                    } else {
+                      const { imageDataUrl } = await renderStructuredPreviewToDataUrl(example as any, t, 1024);
+                      setTemplateExampleOverride(String(t.id), imageDataUrl);
+                      (usePromptStore.getState() as any).recordGeneration?.(prompt, t.id, 'structured', imageDataUrl);
+                      count++;
+                    }
+                    // small delay so we don't hammer the key or the canvas
+                    await new Promise(r => setTimeout(r, 120));
+                  } catch {}
+                }
+                toast.success(`Seeded ${count} high-quality examples`, { description: 'Library now shows real generations for those cards. Repeat for the rest or add your OpenAI key for the photoreal ones.' });
+              }}
+            >
+              ✨ Seed high-quality examples for visible cards
+            </button>
           </div>
 
           <div className="prompt-grid">
@@ -1330,7 +1366,9 @@ export default function DeckMintApp() {
                     {/* Priority: if the user has promoted a real high-quality generation (local PNG or AI) as the example for this template,
                         show that actual image. This is the "use our own prompts to produce high-end graphics of what they do" path. */}
                     {templateExampleOverrides[String(t.id)] ? (
-                      <div className="thumbnail-container" data-ratio={t.aspect_ratio} style={{ overflow: 'hidden' }}>
+                      /* When a real high-end generation is promoted, give it maximum visual real estate
+                         so the library actually looks like a collection of finished modern graphics. */
+                      <div className="thumbnail-container" data-ratio={t.aspect_ratio} style={{ overflow: 'hidden', minHeight: '72%' }}>
                         <img
                           src={templateExampleOverrides[String(t.id)]}
                           alt={`Example for ${t.name}`}
@@ -1338,7 +1376,9 @@ export default function DeckMintApp() {
                         />
                       </div>
                     ) : usesRichLivePreview ? (
-                      <div style={{ transform: 'scale(0.78)', transformOrigin: 'top left', width: '128%' }}>
+                      /* Give the rich "perfect modern example" preview real visual weight in the card.
+                         The old tiny scaled-down version was a big part of why it still felt weak. */
+                      <div style={{ transform: 'scale(0.92)', transformOrigin: 'top left', width: '109%' }}>
                         <LiveStructuredPreview
                           template={t}
                           structured={getExampleStructuredForTemplate(t) as any}
@@ -1355,7 +1395,7 @@ export default function DeckMintApp() {
                       {/* Choice signal — helps you quickly decide if this is the right template for the job.
                           Pulled from the hardened prompt metadata (category + visual_type + layout + tags). */}
                       <div className="text-[8px] text-[var(--text-muted)] leading-tight mt-0.5 line-clamp-2">
-                        {isDataViz ? 'Ranked data • strict proportions • great for stories' :
+                        {usesRichLivePreview ? 'Premium modern example • production-ready' :
                          t.visual_type.includes('carousel') ? 'Series-ready • lock style from cover' :
                          /knowledge|explainer|step/i.test(t.name) ? 'Clear hierarchy • 3–5 exact points' :
                          t.visual_type === 'infographic' ? 'Production infographic • exact elements' :
@@ -1369,7 +1409,7 @@ export default function DeckMintApp() {
 
                       {/* Quick actions on the card itself (library love).
                           These stop propagation so you can act without fully selecting if you want. */}
-                      <div className="mt-1 flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      <div className="mt-1 flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
                         <button
                           className="text-[8px] px-1.5 py-px rounded border border-[var(--border)] hover:border-[var(--accent)]"
                           onClick={(e) => { e.stopPropagation(); handleSelect(t.id); setTimeout(() => buildDataStoryFromCurrent(), 80); }}
@@ -1394,6 +1434,44 @@ export default function DeckMintApp() {
                           title="Copy the assembled prompt for this template (using current variable values)"
                         >
                           copy
+                        </button>
+
+                        {/* The important one for making the library actually look high-end.
+                            Uses the curated "perfect modern example" structured data we built,
+                            assembles the real prompt, generates (AI if you have a key, else good local canvas),
+                            then immediately promotes the resulting image as the canonical thumbnail for this card.
+                            This is how the app "uses its own prompts to produce high end graphics of what they do". */}
+                        <button
+                          className="text-[8px] px-1.5 py-px rounded border border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const example = getExampleStructuredForTemplate(t);
+                            // Build the exact prompt the template + this perfect example data would produce
+                            const prompt = buildStructuredPrompt(t, example as any);
+
+                            try {
+                              if (ai.openaiApiKey) {
+                                await generateRealImage(prompt, t.id, 'structured');
+                                const latest = (usePromptStore.getState() as any).lastGenerated;
+                                if (latest?.imageDataUrl) {
+                                  setTemplateExampleOverride(String(t.id), latest.imageDataUrl);
+                                  toast.success('High-quality AI example set', { description: `Library card for "${t.name}" now shows a real generation.` });
+                                }
+                              } else {
+                                // Local high-res canvas render using the exact same structured example data
+                                const { imageDataUrl } = await renderStructuredPreviewToDataUrl(example as any, t, 1024);
+                                setTemplateExampleOverride(String(t.id), imageDataUrl);
+                                // Record so it also appears in Latest / history
+                                (usePromptStore.getState() as any).recordGeneration?.(prompt, t.id, 'structured', imageDataUrl);
+                                toast.success('Local example promoted', { description: 'Good canvas render set as the library thumbnail. Add an OpenAI key for photoreal / complex ones.' });
+                              }
+                            } catch (err: any) {
+                              toast.error('Failed to generate example', { description: String(err?.message || err) });
+                            }
+                          }}
+                          title="Generate a high-quality visual from this template's best example data and make it the thumbnail shown in the library grid"
+                        >
+                          ✨ Generate &amp; use as thumbnail
                         </button>
                       </div>
                     </div>
